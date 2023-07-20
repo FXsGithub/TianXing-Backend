@@ -50,9 +50,7 @@ public class StudentController {
     }
 
     /**
-     * 根据ID查询学生
-     * @param: id;
-     * @return: Student.
+     * 数据格式处理demo
      */
     @GetMapping("/finddata/{id}")
     @ApiOperation(value = "数据格式处理demo", notes = "JSON字符串转成多维数组的demo")
