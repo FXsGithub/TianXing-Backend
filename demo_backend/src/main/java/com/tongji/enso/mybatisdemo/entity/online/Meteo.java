@@ -8,9 +8,9 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class Student {
+public class Meteo {
     private int id;
-    private String name;
+    private String year;
+    private String month;
     private String data;
-    private String college;
 }
