@@ -3,10 +3,12 @@ package com.tongji.enso.mybatisdemo.mapper.online;
 import com.tongji.enso.mybatisdemo.entity.online.Tj_sie;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
+
 @Repository
-public class Tj_sieMapper {
+public interface Tj_sieMapper {
     /**
-     * 查询某年某月的SIE指数
+     * 查询某年某月之后12个月的SIE指数
      */
-//    Tj_sie findByMonth(String month);
+    List<Tj_sie> findByMonth(String year, String month);
 }
