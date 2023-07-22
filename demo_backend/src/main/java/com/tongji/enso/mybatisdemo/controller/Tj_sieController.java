@@ -1,5 +1,6 @@
 package com.tongji.enso.mybatisdemo.controller;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tongji.enso.mybatisdemo.entity.online.Tj_sie;
 import com.tongji.enso.mybatisdemo.service.online.Tj_sieService;
 import io.swagger.annotations.ApiOperation;
@@ -23,6 +24,24 @@ public class Tj_sieController {
     @GetMapping("/predictionResult/SIE")
     @ApiOperation(value = "查询月份开始起报之后12个月的SIE指数以及文本描述", notes = "根据月份查询SIE指数预测结果")
     public List<Tj_sie> findByMonth(@RequestParam String year, @RequestParam String month){
-        return tj_sieService.findSIEByMonth(year,month);
+
+        // 要返回的对象列表
+        List<Tj_sie> sieList = tj_sieService.findSIEByMonth(year, month);
+        // 使用ObjectMapper进行JSON数据解析
+        ObjectMapper objectMapper = new ObjectMapper();
+        // 遍历返回结果中的每个Tj_sie对象，对其data字段进行解析，并替换为一维数组
+        for (Tj_sie sie : sieList) {
+            String jsonData = sie.getData(); // 获取JSON数据的字符串形式
+            try {
+                // 将JSON数据转换为一维double数组
+                double[] dataArray = objectMapper.readValue(jsonData, double[].class);
+                // 将解析后的一维数组设置到Tj_sie对象的data字段中
+                sie.setTrans_data(dataArray);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+
+        return sieList;
     }
 }
