@@ -1,6 +1,7 @@
 package com.tongji.enso.mybatisdemo.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.tongji.enso.mybatisdemo.entity.online.Meteo;
 import com.tongji.enso.mybatisdemo.entity.online.Tj_sie;
 import com.tongji.enso.mybatisdemo.service.online.Tj_sieService;
 import io.swagger.annotations.ApiOperation;
@@ -17,6 +18,15 @@ import java.util.List;
 public class Tj_sieController {
     @Autowired
     private Tj_sieService tj_sieService;
+
+    /**
+     * 查询全部SIE指数
+     */
+    @GetMapping("/findAllSIE")
+    @ApiOperation(value = "查询所有月份的SIE指数，按id排序", notes = "查询全部SIE指数")
+    public List<Tj_sie> findAll(){
+        return tj_sieService.findAllSIE();
+    }
 
     /**
      * 查询某月份开始起报之后12个月的SIE指数
