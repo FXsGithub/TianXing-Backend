@@ -26,7 +26,7 @@ public class Tj_sicController {
      */
     @GetMapping("/findAllSIC")
     @ApiOperation(value = "查询全部Sic指数，返回'Tj_sic'类型列表", notes = "查询全部Sic指数")
-    public List<Tj_sic> findAll(){ return tj_sicservice.findAllSic(); }
+    public List<Tj_sic> findAll(){ return tj_sicservice.findAllSIC(); }
 
     /**
      * 查询某月份的SIC指数
@@ -35,36 +35,23 @@ public class Tj_sicController {
      */
     @GetMapping("/predictionResult/SIC")
     @ApiOperation(value = "查询月份的SIC指数以及文本描述", notes = "根据月份查询SIC指数预测结果")
-    public Tj_sic findPredictionByYearAndMonth(@RequestParam String year, @RequestParam String month){
-        return tj_sicservice.findSICPredictionByYearAndMonth(year,month);
-    }
+    public List<Tj_sic> findSICPredictionByYearAndMonth(@RequestParam String year, @RequestParam String month){
 
-    /**
-     * 格式化SIC指数
-     * @param: year, month;
-     * @return: HashMap<String, Object>.
-     */
-    @GetMapping("/transSIC")
-    public HashMap<String, Object> transSICData(@RequestParam String year, @RequestParam String month){
+        List<Tj_sic> sicList = tj_sicservice.findPredictionByYearAndMonth(year,month);
 
-        Tj_sic tj_sic=tj_sicservice.findSICPredictionByYearAndMonth(year,month);
+        ObjectMapper objectMapper = new ObjectMapper();
+        double[][][] data = null;
 
-        String jsonString = tj_sic.getData();
-
-        double[][][] data_trans = null;
-
-        try {
-            ObjectMapper objectMapper = new ObjectMapper();
-            data_trans = objectMapper.readValue(jsonString, double[][][].class);
-        } catch (JsonProcessingException e) {
-            e.printStackTrace();
+        // 遍历查找到的每个Tj_sic对象，对其data字段进行解析，并替换为三维数组
+        for(Tj_sic sic:sicList){
+            String jsonString = sic.getData();
+            try {
+                data = objectMapper.readValue(jsonString, double[][][].class);
+                sic.setTrans_data(data);
+            } catch (JsonProcessingException e) {
+                e.printStackTrace();
+            }
         }
-
-        HashMap<String, Object> return_hashmap=new HashMap<String, Object>();
-
-        return_hashmap.put("data", data_trans);
-
-        return return_hashmap;
+        return sicList;
     }
-
 }

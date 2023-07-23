@@ -12,5 +12,5 @@ public interface Tj_sicMapper {
 
     List<Tj_sic> findAll();
 
-    Tj_sic findPredictionByYearAndMonth(String year, String month);
+    List<Tj_sic> findByYearAndMonth(String year, String month);
 }

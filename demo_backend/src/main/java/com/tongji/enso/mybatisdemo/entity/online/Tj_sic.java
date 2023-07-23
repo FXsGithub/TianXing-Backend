@@ -13,4 +13,5 @@ public class Tj_sic {
     private String month;
     private String var_model;
     private String data;
+    private double[][][] trans_data;
 }
