@@ -2,7 +2,7 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.tongji.enso.mybatisdemo.mapper.online.Tj_sicMapper">
 
-    <select id="findPredictionByYearAndMonth" resultType="Tj_sic">
+    <select id="findByYearAndMonth" resultType="Tj_sic">
         select * from tj_sic where year=#{year} and month=#{month}
     </select>
 

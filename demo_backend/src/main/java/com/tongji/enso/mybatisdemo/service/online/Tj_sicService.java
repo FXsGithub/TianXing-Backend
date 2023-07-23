@@ -13,10 +13,10 @@ public class Tj_sicService {
     @Autowired
     private Tj_sicMapper tj_sicmapper;
 
-    public List<Tj_sic> findAllSic(){ return tj_sicmapper.findAll(); }
+    public List<Tj_sic> findAllSIC(){ return tj_sicmapper.findAll(); }
 
-    public Tj_sic findSICPredictionByYearAndMonth(String year, String month){
-        return tj_sicmapper.findPredictionByYearAndMonth(year, month);
+    public List<Tj_sic> findPredictionByYearAndMonth(String year, String month){
+        return tj_sicmapper.findByYearAndMonth(year, month);
     }
 
 }
