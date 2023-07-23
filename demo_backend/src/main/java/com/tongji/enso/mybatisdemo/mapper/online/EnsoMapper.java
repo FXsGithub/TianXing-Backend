@@ -14,14 +14,6 @@ import java.util.List;
 public interface EnsoMapper {
 
     /**
-     * 查询 tj_enso 表中全部数据
-     * @return
-     */
-    @Select("select * from tj_enso")
-    List<Enso> findAll();
-
-
-    /**
      * 从 tj_enso 表中查询指定年、月、变量模型的数据
      * @param year
      * @param month
@@ -30,5 +22,6 @@ public interface EnsoMapper {
      */
     @Select("SELECT data FROM tj_enso WHERE year = #{year} AND month = #{month} AND var_model = #{var_model}")
     String findEachPredictionsByMonthType(@Param("year") String year, @Param("month") String month, @Param("var_model") String var_model);
+
 
 }

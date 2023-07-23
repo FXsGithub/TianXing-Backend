@@ -35,13 +35,13 @@ public class EnsoController {
      * @return
      */
     @GetMapping("/predictionResult/linechart")
-    public Map<String, List<Double>> findNino34PredictionsByMonth(@RequestParam("year") String year, @RequestParam("month") String month) {
+    public Map<String, List<Double>> getLineChartData(@RequestParam("year") String year, @RequestParam("month") String month) {
         Gson gson = new Gson();
         Type listType = new TypeToken<List<Double>>() {
         }.getType();
 
-        String result1 = ensoMapper.findEachPredictionsByMonthType(year, month, "nino34_asc");
-        List<Double> list1 = gson.fromJson(result1, listType);
+        String result1 = ensoMapper.findEachPredictionsByMonthType(year, month, "nino34_asc");  // 从数据库中查询数据
+        List<Double> list1 = gson.fromJson(result1, listType);  // 将结果字符串转换为列表
 
         String result2 = ensoMapper.findEachPredictionsByMonthType(year, month, "nino34_gtc");
         List<Double> list2 = gson.fromJson(result2, listType);
@@ -56,7 +56,7 @@ public class EnsoController {
         List<Double> list5 = gson.fromJson(result5, listType);
 
         Map<String, List<Double>> resultMap = new HashMap<>();
-        resultMap.put("nino34_asc", list1);
+        resultMap.put("nino34_asc", list1);  // key 为模型名，value 为对应的数据列表
         resultMap.put("nino34_gtc", list2);
         resultMap.put("nino34_cross", list3);
         resultMap.put("nino34_mc", list4);
@@ -65,5 +65,36 @@ public class EnsoController {
         return resultMap;
 
     }
+
+
+    /**
+     * for Niño3.4区SST集合平均预测结果  --- 学长说使用 xxxssta 数据绘制
+     * @param year
+     * @param month
+     * @param monthIndex
+     * @return
+     */
+    @GetMapping("/predictionResult/ssta")
+    public Map<String, List<List<Double>>> getSstData(@RequestParam("year") String year, @RequestParam("month") String month, @RequestParam("monthIndex") int monthIndex) {
+
+        String result1 = ensoMapper.findEachPredictionsByMonthType(year, month, "ssta_asc");
+
+        // 将结果字符串转换为三维列表
+        Gson gson = new Gson();
+        List<List<List<Double>>> resultList1 = gson.fromJson(result1, new TypeToken<List<List<List<Double>>>>(){}.getType());
+
+        // 将结果添加到 Map 中并返回
+        Map<String, List<List<Double>>> resultMap = new HashMap<>();
+        if(monthIndex >= 0 && monthIndex < resultList1.size()) {
+            resultMap.put("ssta_asc", resultList1.get(monthIndex));
+        }
+
+        return resultMap;
+
+    }
+
+
+
+
 
 }
