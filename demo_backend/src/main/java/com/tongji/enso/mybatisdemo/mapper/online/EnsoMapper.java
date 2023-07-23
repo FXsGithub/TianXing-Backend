@@ -7,6 +7,9 @@ import org.apache.ibatis.annotations.Select;
 
 import java.util.List;
 
+
+
+
 @Mapper
 public interface EnsoMapper {
 
@@ -19,12 +22,13 @@ public interface EnsoMapper {
 
 
     /**
-     * 从 tj_enso 表中查询接下来 18 个月的预测数据
+     * 从 tj_enso 表中查询指定年、月、变量模型的数据
      * @param year
      * @param month
+     * @param var_model
      * @return
      */
-    @Select("SELECT id FROM tj_enso WHERE year >= #{year} AND (year > #{year} OR month >= #{month}) LIMIT 18")
-    List<Enso> findPredictionsForNext18Months(@Param("year") String year, @Param("month") String month);
+    @Select("SELECT data FROM tj_enso WHERE year = #{year} AND month = #{month} AND var_model = #{var_model}")
+    String findEachPredictionsByMonthType(@Param("year") String year, @Param("month") String month, @Param("var_model") String var_model);
 
 }

@@ -10,4 +10,6 @@ public class EnsoService {
     @Autowired
     private EnsoMapper ensoMapper;
 
+//    List<Enso> findPredictionsByMonthType();
+
 }
