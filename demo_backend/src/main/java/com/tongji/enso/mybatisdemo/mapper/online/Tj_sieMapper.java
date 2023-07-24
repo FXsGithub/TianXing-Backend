@@ -18,4 +18,11 @@ public interface Tj_sieMapper {
      * 查询某年某月之后12个月的SIE指数
      */
     List<Tj_sie> findByMonth(String year, String month);
+
+    /**
+     * 查询指定var_model以及指定月份月份开始起报之后12个月的SIE数据
+     */
+    List<Tj_sie> findByModelandMonth(String year, String month,String var_model);
+
+
 }

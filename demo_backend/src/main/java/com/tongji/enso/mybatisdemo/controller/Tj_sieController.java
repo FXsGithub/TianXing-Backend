@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.HashMap;
 import java.util.List;
 
 @RestController
@@ -22,7 +23,7 @@ public class Tj_sieController {
     /**
      * 查询全部SIE指数
      */
-    @GetMapping("/findAllSIE")
+    @GetMapping("/findAll/SIE")
     @ApiOperation(value = "查询所有月份的SIE指数，按id排序", notes = "查询全部SIE指数")
     public List<Tj_sie> findAll(){
         return tj_sieService.findAllSIE();
@@ -53,5 +54,31 @@ public class Tj_sieController {
         }
 
         return sieList;
+    }
+
+    /**
+     * 查询指定var_model以及指定月份月份开始起报之后12个月的SIE数据
+     */
+    @GetMapping("/findByModelandMonth/SIE")
+    @ApiOperation(value = "查询指定var_model以及指定月份月份开始起报之后12个月的SIE数据(已转化为一维数组形式）", notes = "根据月份和var_model查询SIE指数预测结果")
+    public HashMap<String,Object> findByModelandMonth(@RequestParam String year, @RequestParam String month, @RequestParam String var_model){
+
+        // 要返回的对象列表
+        List<Tj_sie> sieList = tj_sieService.findByModelandMonth(year, month,var_model);
+        ObjectMapper objectMapper = new ObjectMapper();
+        double[] dataArray = null;
+        // 遍历返回结果中的每个Tj_sie对象，对其data字段进行解析，并替换为一维数组
+        for (Tj_sie sie : sieList) {
+            String jsonData = sie.getData(); // 获取JSON数据的字符串形式
+            try {
+                // 将JSON数据转换为一维double数组
+                dataArray = objectMapper.readValue(jsonData, double[].class);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        HashMap<String, Object> return_hashmap = new HashMap<String, Object>();
+        return_hashmap.put("data", dataArray);
+        return return_hashmap;
     }
 }
