@@ -69,6 +69,7 @@ public class EnsoController {
 
     /**
      * for Niño3.4区SST集合平均预测结果  --- 学长说使用 xxxssta 数据绘制
+     * http://localhost:8888/enso/predictionResult/ssta?year=2023&month=4&monthIndex=1
      * @param year
      * @param month
      * @param monthIndex
@@ -77,16 +78,16 @@ public class EnsoController {
     @GetMapping("/predictionResult/ssta")
     public Map<String, List<List<Double>>> getSstData(@RequestParam("year") String year, @RequestParam("month") String month, @RequestParam("monthIndex") int monthIndex) {
 
-        String result1 = ensoMapper.findEachPredictionsByMonthType(year, month, "ssta_asc");
+        String result = ensoMapper.findEachPredictionsByMonthType(year, month, "ssta_mean");
 
         // 将结果字符串转换为三维列表
         Gson gson = new Gson();
-        List<List<List<Double>>> resultList1 = gson.fromJson(result1, new TypeToken<List<List<List<Double>>>>(){}.getType());
+        List<List<List<Double>>> resultList = gson.fromJson(result, new TypeToken<List<List<List<Double>>>>(){}.getType());
 
         // 将结果添加到 Map 中并返回
         Map<String, List<List<Double>>> resultMap = new HashMap<>();
-        if(monthIndex >= 0 && monthIndex < resultList1.size()) {
-            resultMap.put("ssta_asc", resultList1.get(monthIndex));
+        if(monthIndex >= 0 && monthIndex < resultList.size()) {
+            resultMap.put("ssta_mean", resultList.get(monthIndex));
         }
 
         return resultMap;
