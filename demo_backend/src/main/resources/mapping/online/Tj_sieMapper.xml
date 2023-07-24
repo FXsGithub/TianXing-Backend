@@ -1,9 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.tongji.enso.mybatisdemo.mapper.online.Tj_sieMapper">
+    <select id="findAll" resultType="Tj_sie">
+        select * from tj_sie
+    </select>
 
-<select id="findByMonth" resultType="Tj_sie">
-    select * from tj_sie where year=#{year} and month=#{month}
-</select>
+    <select id="findByMonth" resultType="Tj_sie">
+        select * from tj_sie where year=#{year} and month=#{month}
+    </select>
+
+    <select id="findByModelandMonth" resultType="Tj_sie">
+        select * from tj_sie where year=#{year} and month=#{month} and var_model=#{var_model}
+    </select>
 
 </mapper>
