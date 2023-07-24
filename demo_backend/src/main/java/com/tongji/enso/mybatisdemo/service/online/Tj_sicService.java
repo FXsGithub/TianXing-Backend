@@ -15,8 +15,12 @@ public class Tj_sicService {
 
     public List<Tj_sic> findAllSIC(){ return tj_sicmapper.findAll(); }
 
-    public List<Tj_sic> findPredictionByYearAndMonth(String year, String month){
-        return tj_sicmapper.findByYearAndMonth(year, month);
+    public List<Tj_sic> findPredictionByDate(String year, String month){
+        return tj_sicmapper.findByDate(year, month);
+    }
+
+    public List<Tj_sic> findCheckoutByMonth(String year, String month){
+        return tj_sicmapper.findCheckoutByMonth(year, month);
     }
 
 }

@@ -11,7 +11,7 @@ public class Tj_sic {
     private int id;
     private String year;
     private String month;
+    private String day;
     private String var_model;
     private String data;
-    private double[][][] trans_data;
 }

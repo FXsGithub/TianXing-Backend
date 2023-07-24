@@ -11,8 +11,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 
 @RestController
 @RequestMapping("/seaice")
@@ -30,28 +29,49 @@ public class Tj_sicController {
 
     /**
      * 查询某月份的SIC指数
-     * @param: year, month;
-     * @return: Tj_sic.
+     * @param: year, month, day;
+     * @return: Map<String, Object>.
      */
     @GetMapping("/predictionResult/SIC")
     @ApiOperation(value = "查询月份的SIC指数以及文本描述", notes = "根据月份查询SIC指数预测结果")
-    public List<Tj_sic> findSICPredictionByYearAndMonth(@RequestParam String year, @RequestParam String month){
+    public Map<String, Object> findSICPredictionByDate(@RequestParam String year,@RequestParam String month){
 
-        List<Tj_sic> sicList = tj_sicservice.findPredictionByYearAndMonth(year,month);
-
+        List<Tj_sic> sicList = tj_sicservice.findPredictionByDate(year,month);
+        Map<String, Object> sicMap=new HashMap<>();
         ObjectMapper objectMapper = new ObjectMapper();
-        double[][][] data = null;
 
-        // 遍历查找到的每个Tj_sic对象，对其data字段进行解析，并替换为三维数组
+        double[][][] data = null;
+        // 将data字段转化为三维数组
         for(Tj_sic sic:sicList){
-            String jsonString = sic.getData();
             try {
+                String jsonString = sic.getData();
                 data = objectMapper.readValue(jsonString, double[][][].class);
-                sic.setTrans_data(data);
+                sicMap.put(sic.getDay(),data);
             } catch (JsonProcessingException e) {
                 e.printStackTrace();
             }
         }
-        return sicList;
+        return sicMap;
+    }
+
+    @GetMapping("/error")
+    @ApiOperation(value = "查询月份4周的SIC预测结果与基线方法的比较以及文本描述", notes = "根据月份查询SIC指数预测结果与基线方法的比较")
+    public Map<String, Object> findSICCheckoutByMonth(@RequestParam String year,@RequestParam String month){
+
+        List<Tj_sic> sicList=tj_sicservice.findCheckoutByMonth(year,month);
+
+        Map<String, Object> sicMap=new HashMap<>();
+        ObjectMapper objectMapper = new ObjectMapper();
+        double []data = null;
+        for(Tj_sic sic:sicList){
+            try {
+                String jsonString = sic.getData();
+                data = objectMapper.readValue(jsonString, double[].class);
+                sicMap.put(sic.getVar_model(),data);
+            } catch (JsonProcessingException e) {
+                e.printStackTrace();
+            }
+        }
+        return sicMap;
     }
 }
