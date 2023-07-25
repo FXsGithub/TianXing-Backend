@@ -74,4 +74,38 @@ public class Tj_sicController {
         }
         return sicMap;
     }
+
+    @GetMapping("/errorBox")
+    public Map<String, Object> findSICErrorBoxByYear(@RequestParam String year){
+
+        List<Tj_sic> sicList=tj_sicservice.findErrorBoxByYearAndModel(year);
+
+        Map<String, Object> sicMap=new HashMap<>();
+        ObjectMapper objectMapper = new ObjectMapper();
+
+
+        double []data = null;
+
+        for(Tj_sic sic:sicList){
+            try {
+                String jsonString = sic.getData();
+                data = objectMapper.readValue(jsonString, double[].class);
+                int size= data.length / 7;
+                double [][]result = new double[7][size];
+                int j = 0;
+                for(int i = 0; i < data.length; i++){
+                    result[i % 7][j] = data[i];
+                    if (i % 7 == 6) {
+                        j++;
+                    }
+                }
+                sicMap.put(sic.getVar_model(),result);
+            } catch (JsonProcessingException e) {
+                e.printStackTrace();
+            }
+        }
+
+        return sicMap;
+    }
+
 }
