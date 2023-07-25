@@ -59,8 +59,8 @@ public class Tj_sieController {
     /**
      * 查询指定var_model以及指定月份月份开始起报之后12个月的SIE数据
      */
-    @GetMapping("/findByModelandMonth/SIE")
-    @ApiOperation(value = "查询指定var_model以及指定月份月份开始起报之后12个月的SIE数据(已转化为一维数组形式）", notes = "根据月份和var_model查询SIE指数预测结果")
+    @GetMapping("/findByModelandTime/SIE")
+    @ApiOperation(value = "查询指定var_model以及指定年月的SIE数据(已转化为一维数组形式）", notes = "根据年月和var_model查询SIE指数预测结果")
     public HashMap<String,Object> findByModelandMonth(@RequestParam String year, @RequestParam String month, @RequestParam String var_model){
 
         // 要返回的对象列表
@@ -79,6 +79,32 @@ public class Tj_sieController {
         }
         HashMap<String, Object> return_hashmap = new HashMap<String, Object>();
         return_hashmap.put("data", dataArray);
+        return return_hashmap;
+    }
+
+    /**
+     * 查询年份及其前几年的rmsd和相关系数等指标的数据，文本描述
+     */
+    @GetMapping("/predictionExamination/errorAnalysis")
+    @ApiOperation(value = "SIE预测误差分析", notes = "查询年份及其前几年的rmsd和相关系数等指标的数据，文本描述")
+    public HashMap<String ,Object> findErrorAnalysis(@RequestParam String year){
+        // 要返回的对象列表
+        List<Tj_sie> sieList = tj_sieService.findByYear(year);
+        HashMap<String, Object> return_hashmap = new HashMap<String, Object>();
+        ObjectMapper objectMapper = new ObjectMapper();
+        double[] dataArray = null;
+        // 遍历返回结果中的每个Tj_sie对象，对其data字段进行解析，并替换为一维数组
+        for (Tj_sie sie : sieList) {
+            String jsonData = sie.getData(); // 获取JSON数据的字符串形式
+            try {
+                // 将JSON数据转换为一维double数组
+                dataArray = objectMapper.readValue(jsonData, double[].class);
+                return_hashmap.put(sie.getVar_model(), dataArray);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+
         return return_hashmap;
     }
 }

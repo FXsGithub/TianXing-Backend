@@ -13,4 +13,8 @@
         select * from tj_sie where year=#{year} and month=#{month} and var_model=#{var_model}
     </select>
 
+    <select id="findByYear" resultType="Tj_sie">
+        select * from tj_sie where year=#{year}
+    </select>
+
 </mapper>
