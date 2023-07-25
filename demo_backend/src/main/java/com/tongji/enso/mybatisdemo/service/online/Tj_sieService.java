@@ -23,7 +23,11 @@ public class Tj_sieService {
         return tj_sieMapper.findByMonth(year,month);
     }
 
-    public List<Tj_sie> findByModelandMonth(String year, String month,String var_model){
-        return tj_sieMapper.findByModelandMonth(year,month,var_model);
+    public List<Tj_sie> findByModelandMonth(String year, String month,String var_model) {
+        return tj_sieMapper.findByModelandMonth(year, month, var_model);
+    }
+
+    public List<Tj_sie> findByYear(String year) {
+        return tj_sieMapper.findByYear(year);
     }
 }

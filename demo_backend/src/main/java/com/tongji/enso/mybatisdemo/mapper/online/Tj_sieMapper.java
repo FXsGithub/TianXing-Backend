@@ -25,4 +25,5 @@ public interface Tj_sieMapper {
     List<Tj_sie> findByModelandMonth(String year, String month,String var_model);
 
 
+    List<Tj_sie> findByYear(String year);
 }
