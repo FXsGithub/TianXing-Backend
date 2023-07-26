@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.lang.reflect.Type;
 import java.util.*;
+import java.util.stream.Collectors;
 
 // 控制层：与前端进行交互
 
@@ -135,8 +136,8 @@ public class EnsoController {
 
         // 根据给定的月份，选择最近的12个月的数据
         int givenMonth = Integer.parseInt(month);
-        int startIndex = givenMonth - 1;  // 包含本月
-        int endIndex = givenMonth + 11;
+        int startIndex = givenMonth;  // 不包含本月
+        int endIndex = givenMonth + 12;
 
         List<Double> current12MonthsData = currentYearNewData.subList(startIndex, endIndex);
 
@@ -157,5 +158,77 @@ public class EnsoController {
         resultMap.putAll(filteredLineChartData);
 
         return resultMap;
+    }
+
+    /**
+     * 返回数据列表的箱型图数据（最小值、Q1、中位数、Q3、最大值）
+     * @param data
+     * @return
+     */
+    public Map<String,  Double> getBoxPlotData(List<Double> data) {
+        double min = Collections.min(data);
+        double max = Collections.max(data);
+        double median = getMedian(data);
+        double q1 = getMedian(data.stream().filter(i -> i < median).collect(Collectors.toList()));
+        double q3 = getMedian(data.stream().filter(i -> i > median).collect(Collectors.toList()));
+
+        Map<String, Double> boxPlotData = new HashMap<>();
+        boxPlotData.put("min", min);
+        boxPlotData.put("q1", q1);
+        boxPlotData.put("median", median);
+        boxPlotData.put("q3", q3);
+        boxPlotData.put("max", max);
+
+        return boxPlotData;
+    }
+
+    /**
+     * 返回列表数据的中位数
+     * @param data
+     * @return
+     */
+    public double getMedian(List<Double> data) {
+        int size = data.size();
+        if (size % 2 == 0) {
+            return (data.get(size / 2 - 1) + data.get(size / 2)) / 2.0;
+        } else {
+            return data.get(size / 2);
+        }
+    }
+
+    /**
+     * 返回每个模型预测误差箱形图绘制需求数据：最大值、最小值、中位数、上四分位数（Q1）、下四分位数（Q3）五个统计量
+     * @param year
+     * @param month
+     * @return
+     */
+    @GetMapping("/predictionExamination/error")
+    public Map<String, Map<String, Double>> getError(@RequestParam("year") String year, @RequestParam("month") String month)
+    {
+        Gson gson = new Gson();
+        Type listType = new TypeToken<List<Double>>() {
+        }.getType();
+
+        // 获取观察数据
+        Map<String, List<Double>> monthlyComparisonData = getMonthlyComparison(year, month);
+        List<Double> obsData = monthlyComparisonData.get("obs");
+
+        // 获取预测数据
+        Map<String, List<Double>> lineChartData = getLineChartData(year, month);
+
+        // 计算每个预测模型的绝对误差并生成箱型图数据
+        Map<String, Map<String, Double>> errorData = new HashMap<>();
+        for (Map.Entry<String, List<Double>> entry : lineChartData.entrySet()) {
+            List<Double> modelData = entry.getValue();
+            List<Double> errorList = new ArrayList<>();
+            for (int i = 0; i < obsData.size(); i++) {
+                double error = Math.abs(obsData.get(i) - modelData.get(i));
+                errorList.add(error);
+            }
+            Map<String, Double> boxPlotData = getBoxPlotData(errorList);
+            errorData.put(entry.getKey(), boxPlotData);
+        }
+
+        return errorData;
     }
 }
