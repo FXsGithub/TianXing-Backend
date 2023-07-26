@@ -113,38 +113,49 @@ public class EnsoController {
             currentYearNewData.set(i, currentYearData.get(i));
         }
 
-        // 查询前一年的数据
-        String previousYear = String.valueOf(Integer.parseInt(year) - 1);
-        String previousYearResult = ensoMapper.findObsEnsoByYear(previousYear);
+        // 查询下一年的数据
+        String futureYear = String.valueOf(Integer.parseInt(year) + 1);
+        String futureYearResult = ensoMapper.findObsEnsoByYear(futureYear);
 
-        // 如果前一年没有数据，那么返回包含 12 个 -1 的列表
-        List<Double> previousYearNewData = new ArrayList<>(Collections.nCopies(12, -1.0));
+        // 如果下一年没有数据，那么返回包含 12 个 -1 的列表
+        List<Double> futureYearNewData = new ArrayList<>(Collections.nCopies(12, -1.0));
 
-        if (previousYearResult != null && !previousYearResult.isEmpty())
+        if (futureYearResult != null && !futureYearResult.isEmpty())
         {
-            List<Double> previousYearData = gson.fromJson(previousYearResult, listType);
+            List<Double> previousYearData = gson.fromJson(futureYearResult, listType);
 
             // 用查询到的数据替换默认数据
             for (int i = 0; i < previousYearData.size(); i++) {
-                previousYearNewData.set(i, previousYearData.get(i));
+                futureYearNewData.set(i, previousYearData.get(i));
             }
         }
 
         // 合并两个年份的数据
-        previousYearNewData.addAll(currentYearNewData);
+        currentYearNewData.addAll(futureYearNewData);
 
         // 根据给定的月份，选择最近的12个月的数据
         int givenMonth = Integer.parseInt(month);
-        int startIndex = givenMonth;
-        int endIndex = givenMonth + 12;
+        int startIndex = givenMonth - 1;  // 包含本月
+        int endIndex = givenMonth + 11;
 
-        List<Double> previous12MonthsData = previousYearNewData.subList(startIndex, endIndex);
+        List<Double> current12MonthsData = currentYearNewData.subList(startIndex, endIndex);
 
         Map<String, List<Double>> resultMap = new HashMap<>();
-        resultMap.put("obs", previous12MonthsData);
+        resultMap.put("obs", current12MonthsData);
 
-//        Map<String, List<Double>> lineChartData = getLineChartData(previousYear, month);
-//        resultMap.putAll(lineChartData);
+        Map<String, List<Double>> lineChartData = getLineChartData(year, month);
+
+        // 只要前12个月的预测数据
+        Map<String, List<Double>> filteredLineChartData = new HashMap<>();
+        for (Map.Entry<String, List<Double>> entry : lineChartData.entrySet()) {
+            List<Double> fullData = entry.getValue();
+
+            List<Double> last12MonthsData = fullData.subList(0, 12);
+            filteredLineChartData.put(entry.getKey(), last12MonthsData);
+        }
+
+        resultMap.putAll(filteredLineChartData);
+
         return resultMap;
     }
 }
