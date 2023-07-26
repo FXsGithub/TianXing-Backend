@@ -1,7 +1,6 @@
 package com.tongji.enso.mybatisdemo.controller;
 
 import com.tongji.enso.mybatisdemo.mapper.online.EnsoMapper;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
@@ -13,9 +12,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 
 import java.lang.reflect.Type;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 // 控制层：与前端进行交互
 
@@ -63,7 +60,6 @@ public class EnsoController {
         resultMap.put("nino34_mean", list5);
 
         return resultMap;
-
     }
 
 
@@ -76,8 +72,7 @@ public class EnsoController {
      * @return
      */
     @GetMapping("/predictionResult/ssta")
-    public Map<String, List<List<Double>>> getSstData(@RequestParam("year") String year, @RequestParam("month") String month, @RequestParam("monthIndex") int monthIndex) {
-
+    public Map<String, List<List<Double>>> getSstaData(@RequestParam("year") String year, @RequestParam("month") String month, @RequestParam("monthIndex") int monthIndex) {
         String result = ensoMapper.findEachPredictionsResultByMonthType(year, month, "ssta_mean");
 
         // 将结果字符串转换为三维列表
@@ -91,11 +86,65 @@ public class EnsoController {
         }
 
         return resultMap;
-
     }
 
+    /**
+     * 根据指定的年份和月份，返回当前月份及其前11个月（总共12个月）的数据 预测值 + 实际值
+     * TODO：添加预测值，不知道该返回什么数据
+     * @param year
+     * @param month
+     * @return
+     */
+    @GetMapping("/predictionExamination/monthlyComparison")
+    public Map<String, List<Double>> getMonthlyComparison(@RequestParam("year") String year, @RequestParam("month") String month)
+    {
+        Gson gson = new Gson();
 
+        Type listType = new TypeToken<List<Double>>() {
+        }.getType();
 
+        // 使用给定年份查询所有数据
+        String currentYearResult = ensoMapper.findObsEnsoByYear(year);
+        List<Double> currentYearData = gson.fromJson(currentYearResult, listType);
+        // 创建一个包含12个-1的列表
+        List<Double> currentYearNewData = new ArrayList<>(Collections.nCopies(12, -1.0));
+        // 用查询到的数据替换默认数据
+        for (int i = 0; i < currentYearData.size(); i++) {
+            currentYearNewData.set(i, currentYearData.get(i));
+        }
 
+        // 查询前一年的数据
+        String previousYear = String.valueOf(Integer.parseInt(year) - 1);
+        String previousYearResult = ensoMapper.findObsEnsoByYear(previousYear);
 
+        // 如果前一年没有数据，那么返回包含 12 个 -1 的列表
+        List<Double> previousYearNewData = new ArrayList<>(Collections.nCopies(12, -1.0));
+
+        if (previousYearResult != null && !previousYearResult.isEmpty())
+        {
+            List<Double> previousYearData = gson.fromJson(previousYearResult, listType);
+
+            // 用查询到的数据替换默认数据
+            for (int i = 0; i < previousYearData.size(); i++) {
+                previousYearNewData.set(i, previousYearData.get(i));
+            }
+        }
+
+        // 合并两个年份的数据
+        previousYearNewData.addAll(currentYearNewData);
+
+        // 根据给定的月份，选择最近的12个月的数据
+        int givenMonth = Integer.parseInt(month);
+        int startIndex = givenMonth;
+        int endIndex = givenMonth + 12;
+
+        List<Double> previous12MonthsData = previousYearNewData.subList(startIndex, endIndex);
+
+        Map<String, List<Double>> resultMap = new HashMap<>();
+        resultMap.put("obs", previous12MonthsData);
+
+//        Map<String, List<Double>> lineChartData = getLineChartData(previousYear, month);
+//        resultMap.putAll(lineChartData);
+        return resultMap;
+    }
 }

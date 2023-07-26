@@ -18,5 +18,10 @@ public interface EnsoMapper {
     @Select("SELECT data FROM tj_enso WHERE year = #{year} AND month = #{month} AND var_model = #{var_model}")
     String findEachPredictionsResultByMonthType(@Param("year") String year, @Param("month") String month, @Param("var_model") String var_model);
 
+    /**
+     * 从 obs_enso 表中查询指定年的数据
+     */
+    @Select("SELECT data FROM obs_enso WHERE year = #{year}")
+    String findObsEnsoByYear(@Param("year") String year);
 
 }
