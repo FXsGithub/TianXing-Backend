@@ -227,7 +227,7 @@ public class EnsoController {
     }
 
     /**
-     * 返回每个模型预测误差箱形图绘制需求数据：最大值、最小值、中位数、上四分位数（Q1）、下四分位数（Q3）五个统计量
+     * 预测模型 nino34_mean 预测误差箱形图绘制需求数据：最大值、最小值、中位数、上四分位数（Q1）、下四分位数（Q3）五个统计量
      *
      * @param year
      * @param month
@@ -276,7 +276,7 @@ public class EnsoController {
     }
 
     /**
-     * 计算 year month（包括本月）未来的观测数据和真实数据的皮尔逊相关系数
+     * 返回 year month 当月 mean模型预测数据和真实数据的皮尔逊相关系数
      *
      * @param year
      * @param month
