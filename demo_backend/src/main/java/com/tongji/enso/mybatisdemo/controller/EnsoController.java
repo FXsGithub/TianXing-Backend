@@ -160,6 +160,35 @@ public class EnsoController {
         return resultMap;
     }
 
+    @GetMapping("/predictionExamination/error")
+    public Map<String, List<Double>> getError(@RequestParam("year") String year, @RequestParam("month") String month)
+    {
+        Gson gson = new Gson();
+        Type listType = new TypeToken<List<Double>>() {
+        }.getType();
+
+        // 获取观测数据
+        Map<String, List<Double>> monthlyComparisonData = getMonthlyComparison(year, month);
+        List<Double> obsData = monthlyComparisonData.get("obs");
+
+        // 获取预测数据
+        Map<String, List<Double>> lineChartData = getLineChartData(year, month);
+
+        // 计算每个预测模型的绝对误差
+        Map<String, List<Double>> errorData = new HashMap<>();
+        for (Map.Entry<String, List<Double>> entry : lineChartData.entrySet()) {
+            List<Double> modelData = entry.getValue();
+            List<Double> errorList = new ArrayList<>();
+            for (int i = 0; i < obsData.size(); i++) {
+                double error = Math.abs(obsData.get(i) - modelData.get(i));
+                errorList.add(error);
+            }
+            errorData.put(entry.getKey(), errorList);
+        }
+
+        return errorData;
+    }
+
     /**
      * 返回数据列表的箱型图数据（最小值、Q1、中位数、Q3、最大值）
      * @param data
