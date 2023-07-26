@@ -202,8 +202,8 @@ public class EnsoController {
      * @param month
      * @return
      */
-    @GetMapping("/predictionExamination/error")
-    public Map<String, Map<String, Double>> getError(@RequestParam("year") String year, @RequestParam("month") String month)
+    @GetMapping("/predictionExamination/errorBox")
+    public Map<String, Map<String, Double>> getErrorBox(@RequestParam("year") String year, @RequestParam("month") String month)
     {
         Gson gson = new Gson();
         Type listType = new TypeToken<List<Double>>() {
