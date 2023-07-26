@@ -4,12 +4,10 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.List;
-
 @Data
 @AllArgsConstructor //全参构造函数
 @NoArgsConstructor //无参构造函数
-public class Enso {
+public class tj_enso {
     private int id;
     private String year;
     private String month;

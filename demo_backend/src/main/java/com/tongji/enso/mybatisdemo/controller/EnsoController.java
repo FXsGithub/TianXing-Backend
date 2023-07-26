@@ -40,19 +40,19 @@ public class EnsoController {
         Type listType = new TypeToken<List<Double>>() {
         }.getType();
 
-        String result1 = ensoMapper.findEachPredictionsByMonthType(year, month, "nino34_asc");  // 从数据库中查询数据
+        String result1 = ensoMapper.findEachPredictionsResultByMonthType(year, month, "nino34_asc");  // 从数据库中查询数据
         List<Double> list1 = gson.fromJson(result1, listType);  // 将结果字符串转换为列表
 
-        String result2 = ensoMapper.findEachPredictionsByMonthType(year, month, "nino34_gtc");
+        String result2 = ensoMapper.findEachPredictionsResultByMonthType(year, month, "nino34_gtc");
         List<Double> list2 = gson.fromJson(result2, listType);
 
-        String result3 = ensoMapper.findEachPredictionsByMonthType(year, month, "nino34_cross");
+        String result3 = ensoMapper.findEachPredictionsResultByMonthType(year, month, "nino34_cross");
         List<Double> list3 = gson.fromJson(result3, listType);
 
-        String result4 = ensoMapper.findEachPredictionsByMonthType(year, month, "nino34_mc");
+        String result4 = ensoMapper.findEachPredictionsResultByMonthType(year, month, "nino34_mc");
         List<Double> list4 = gson.fromJson(result4, listType);
 
-        String result5 = ensoMapper.findEachPredictionsByMonthType(year, month, "nino34_mean");
+        String result5 = ensoMapper.findEachPredictionsResultByMonthType(year, month, "nino34_mean");
         List<Double> list5 = gson.fromJson(result5, listType);
 
         Map<String, List<Double>> resultMap = new HashMap<>();
@@ -78,7 +78,7 @@ public class EnsoController {
     @GetMapping("/predictionResult/ssta")
     public Map<String, List<List<Double>>> getSstData(@RequestParam("year") String year, @RequestParam("month") String month, @RequestParam("monthIndex") int monthIndex) {
 
-        String result = ensoMapper.findEachPredictionsByMonthType(year, month, "ssta_mean");
+        String result = ensoMapper.findEachPredictionsResultByMonthType(year, month, "ssta_mean");
 
         // 将结果字符串转换为三维列表
         Gson gson = new Gson();
