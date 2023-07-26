@@ -19,8 +19,8 @@ public class Tj_sicService {
         return tj_sicmapper.findByDate(year, month);
     }
 
-    public List<Tj_sic> findCheckoutByMonth(String year, String month){
-        return tj_sicmapper.findCheckoutByMonth(year, month);
+    public List<Tj_sic> findErrorByMonth(String year, String month){
+        return tj_sicmapper.findErrorByMonth(year, month);
     }
 
     public List<Tj_sic> findErrorBoxByYearAndModel(String year){

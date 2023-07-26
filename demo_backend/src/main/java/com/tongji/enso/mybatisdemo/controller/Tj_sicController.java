@@ -39,11 +39,12 @@ public class Tj_sicController {
         List<Tj_sic> sicList = tj_sicservice.findPredictionByDate(year,month);
         Map<String, Object> sicMap=new HashMap<>();
         ObjectMapper objectMapper = new ObjectMapper();
-
         double[][][] data = null;
-        // 将data字段转化为三维数组
+
+        // 遍历查询结果中的每组数据
         for(Tj_sic sic:sicList){
             try {
+                // 将data字段转化为三维数组并放入map中
                 String jsonString = sic.getData();
                 data = objectMapper.readValue(jsonString, double[][][].class);
                 sicMap.put(sic.getDay(),data);
@@ -56,15 +57,18 @@ public class Tj_sicController {
 
     @GetMapping("/error")
     @ApiOperation(value = "查询月份4周的SIC预测结果与基线方法的比较以及文本描述", notes = "根据月份查询SIC指数预测结果与基线方法的比较")
-    public Map<String, Object> findSICCheckoutByMonth(@RequestParam String year,@RequestParam String month){
+    public Map<String, Object> findSICErrorByMonth(@RequestParam String year,@RequestParam String month){
 
-        List<Tj_sic> sicList=tj_sicservice.findCheckoutByMonth(year,month);
+        List<Tj_sic> sicList=tj_sicservice.findErrorByMonth(year,month);
 
         Map<String, Object> sicMap=new HashMap<>();
         ObjectMapper objectMapper = new ObjectMapper();
         double []data = null;
+
+        // 遍历查询结果中的每组数据
         for(Tj_sic sic:sicList){
             try {
+                // 将data字段转为一维数组并放入map中
                 String jsonString = sic.getData();
                 data = objectMapper.readValue(jsonString, double[].class);
                 sicMap.put(sic.getVar_model(),data);
@@ -76,35 +80,37 @@ public class Tj_sicController {
     }
 
     @GetMapping("/errorBox")
+    @ApiOperation(value = "查询年份4种SIC预测结果提前1到7天的统计结果误差以及文本描述", notes = "根据年份查询4种SIC预测结果提前1到7天的统计结果误差")
     public Map<String, Object> findSICErrorBoxByYear(@RequestParam String year){
 
         List<Tj_sic> sicList=tj_sicservice.findErrorBoxByYearAndModel(year);
 
         Map<String, Object> sicMap=new HashMap<>();
         ObjectMapper objectMapper = new ObjectMapper();
-
-
         double []data = null;
 
+        // 遍历查询结果中的每组数据
         for(Tj_sic sic:sicList){
             try {
                 String jsonString = sic.getData();
-                data = objectMapper.readValue(jsonString, double[].class);
-                int size= data.length / 7;
+                data = objectMapper.readValue(jsonString, double[].class);  // 将data字段转为一维数组
+                int size= data.length / 7;  // size表示数据等分为7组后，每组数据的长度
+
+                // 创建二维数组result存储最终结果，result[0][]表示提前1天的统计结果误差，以此类推
                 double [][]result = new double[7][size];
                 int j = 0;
                 for(int i = 0; i < data.length; i++){
                     result[i % 7][j] = data[i];
-                    if (i % 7 == 6) {
+                    if (i % 7 == 6) {   // 每取7个数据，j++
                         j++;
                     }
                 }
+                // 将result放入map中
                 sicMap.put(sic.getVar_model(),result);
             } catch (JsonProcessingException e) {
                 e.printStackTrace();
             }
         }
-
         return sicMap;
     }
 
