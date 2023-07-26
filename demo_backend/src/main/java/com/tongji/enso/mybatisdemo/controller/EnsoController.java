@@ -68,6 +68,7 @@ public class EnsoController {
     /**
      * for Niño3.4区SST集合平均预测结果  --- 学长说使用 xxxssta 数据绘制
      * http://localhost:8888/enso/predictionResult/ssta?year=2023&month=4&monthIndex=1
+     *
      * @param year
      * @param month
      * @param monthIndex
@@ -79,11 +80,12 @@ public class EnsoController {
 
         // 将结果字符串转换为三维列表
         Gson gson = new Gson();
-        List<List<List<Double>>> resultList = gson.fromJson(result, new TypeToken<List<List<List<Double>>>>(){}.getType());
+        List<List<List<Double>>> resultList = gson.fromJson(result, new TypeToken<List<List<List<Double>>>>() {
+        }.getType());
 
         // 将结果添加到 Map 中并返回
         Map<String, List<List<Double>>> resultMap = new HashMap<>();
-        if(monthIndex >= 0 && monthIndex < resultList.size()) {
+        if (monthIndex >= 0 && monthIndex < resultList.size()) {
             resultMap.put("ssta_mean", resultList.get(monthIndex));
         }
 
@@ -93,13 +95,13 @@ public class EnsoController {
     /**
      * 根据指定的年份和月份，返回该月的观测数据和预测数据
      * 根据观测数据的最新时间，决定返回数据的长度，至多18个数据
+     *
      * @param year
      * @param month
      * @return
      */
     @GetMapping("/predictionExamination/monthlyComparison")
-    public Map<String, List<Double>> getMonthlyComparison(@RequestParam("year") String year, @RequestParam("month") String month)
-    {
+    public Map<String, List<Double>> getMonthlyComparison(@RequestParam("year") String year, @RequestParam("month") String month) {
         Gson gson = new Gson();
 
         Type listType = new TypeToken<List<Double>>() {
@@ -119,17 +121,14 @@ public class EnsoController {
             String futureYear = String.valueOf(Integer.parseInt(year) + 1);
             String futureYearResult = ensoMapper.findObsEnsoByYear(futureYear);
 
-            if (futureYearResult != null)
-            {
+            if (futureYearResult != null) {
                 List<Double> futureYearData = gson.fromJson(futureYearResult, listType);
                 current18MonthsData.addAll(futureYearData);
-                if (futureYearData.size() == 12 && current18MonthsData.size() < 18)
-                {
+                if (futureYearData.size() == 12 && current18MonthsData.size() < 18) {
                     // 查询下一年的下一年的数据
                     String futureFutureYear = String.valueOf(Integer.parseInt(year) + 2);
                     String futureFutureYearResult = ensoMapper.findObsEnsoByYear(futureFutureYear);
-                    if (futureFutureYearResult != null)
-                    {
+                    if (futureFutureYearResult != null) {
                         List<Double> futureFutureYearData = gson.fromJson(futureFutureYearResult, listType);
                         current18MonthsData.addAll(futureFutureYearData);
                     }
@@ -148,47 +147,54 @@ public class EnsoController {
         String predictionMeanResult = ensoMapper.findEachPredictionsResultByMonthType(year, month, "nino34_mean");
         List<Double> predictionMeanList = gson.fromJson(predictionMeanResult, listType);  // 将结果字符串转换为列表
         // 只需前 current18MonthsData.size() 个数据
-        List<Double>  predictionMeanData = predictionMeanList.subList(0, current18MonthsData.size());
+        List<Double> predictionMeanData = predictionMeanList.subList(0, current18MonthsData.size());
         resultMap.put("mean", predictionMeanData);
 
         return resultMap;
     }
 
+
+    /**
+     * 计算预测模型 nino34_mean 与观测数据在指定年月的绝对误差
+     *
+     * @param year
+     * @param month
+     * @return
+     */
     @GetMapping("/predictionExamination/error")
-    public Map<String, List<Double>> getError(@RequestParam("year") String year, @RequestParam("month") String month)
-    {
+    public Map<String, List<Double>> getError(@RequestParam("year") String year, @RequestParam("month") String month) {
         Gson gson = new Gson();
         Type listType = new TypeToken<List<Double>>() {
         }.getType();
 
-        // 获取观测数据
+        // 获取观察数据
         Map<String, List<Double>> monthlyComparisonData = getMonthlyComparison(year, month);
         List<Double> obsData = monthlyComparisonData.get("obs");
 
         // 获取预测数据
-        Map<String, List<Double>> lineChartData = getLineChartData(year, month);
+        String predictionMeanResult = ensoMapper.findEachPredictionsResultByMonthType(year, month, "nino34_mean");
+        List<Double> predictionMeanList = gson.fromJson(predictionMeanResult, listType);
+        List<Double> predictionMeanData = predictionMeanList.subList(0, obsData.size());
 
-        // 计算每个预测模型的绝对误差
-        Map<String, List<Double>> errorData = new HashMap<>();
-        for (Map.Entry<String, List<Double>> entry : lineChartData.entrySet()) {
-            List<Double> modelData = entry.getValue();
-            List<Double> errorList = new ArrayList<>();
-            for (int i = 0; i < obsData.size(); i++) {
-                double error = Math.abs(obsData.get(i) - modelData.get(i));
-                errorList.add(error);
-            }
-            errorData.put(entry.getKey(), errorList);
+        List<Double> errorList = new ArrayList<>();
+        for (int i = 0; i < obsData.size(); i++) {
+            double error = Math.abs(obsData.get(i) - predictionMeanData.get(i));
+            errorList.add(error);
         }
 
-        return errorData;
+        Map<String, List<Double>> errorMap = new HashMap<>();
+        errorMap.put("nino34_mean", errorList);
+
+        return errorMap;
     }
 
     /**
      * 返回数据列表的箱型图数据（最小值、Q1、中位数、Q3、最大值）
+     *
      * @param data
      * @return
      */
-    private Map<String,  Double> getBoxPlotData(List<Double> data) {
+    private Map<String, Double> getBoxPlotData(List<Double> data) {
         double min = Collections.min(data);
         double max = Collections.max(data);
         double median = getMedian(data);
@@ -207,6 +213,7 @@ public class EnsoController {
 
     /**
      * 返回列表数据的中位数
+     *
      * @param data
      * @return
      */
@@ -221,13 +228,13 @@ public class EnsoController {
 
     /**
      * 返回每个模型预测误差箱形图绘制需求数据：最大值、最小值、中位数、上四分位数（Q1）、下四分位数（Q3）五个统计量
+     *
      * @param year
      * @param month
      * @return
      */
     @GetMapping("/predictionExamination/errorBox")
-    public Map<String, Map<String, Double>> getErrorBox(@RequestParam("year") String year, @RequestParam("month") String month)
-    {
+    public Map<String, Map<String, Double>> getErrorBox(@RequestParam("year") String year, @RequestParam("month") String month) {
         Gson gson = new Gson();
         Type listType = new TypeToken<List<Double>>() {
         }.getType();
@@ -237,25 +244,29 @@ public class EnsoController {
         List<Double> obsData = monthlyComparisonData.get("obs");
 
         // 获取预测数据
-        Map<String, List<Double>> lineChartData = getLineChartData(year, month);
+        String predictionMeanResult = ensoMapper.findEachPredictionsResultByMonthType(year, month, "nino34_mean");
+        List<Double> predictionMeanList = gson.fromJson(predictionMeanResult, listType);
+        List<Double> predictionMeanData = predictionMeanList.subList(0, obsData.size());
 
-        // 计算每个预测模型的绝对误差并生成箱型图数据
-        Map<String, Map<String, Double>> errorData = new HashMap<>();
-        for (Map.Entry<String, List<Double>> entry : lineChartData.entrySet()) {
-            List<Double> modelData = entry.getValue();
-            List<Double> errorList = new ArrayList<>();
-            for (int i = 0; i < obsData.size(); i++) {
-                double error = Math.abs(obsData.get(i) - modelData.get(i));
-                errorList.add(error);
-            }
-            Map<String, Double> boxPlotData = getBoxPlotData(errorList);
-            errorData.put(entry.getKey(), boxPlotData);
+        List<Double> errorList = new ArrayList<>();
+        for (int i = 0; i < obsData.size(); i++) {
+            double error = Math.abs(obsData.get(i) - predictionMeanData.get(i));
+            errorList.add(error);
         }
+        Map<String, Double> boxPlotData = getBoxPlotData(errorList);
 
-        return errorData;
+        Map<String, Map<String, Double>> errorBoxMap = new HashMap<>();
+        errorBoxMap.put("nino34_mean", boxPlotData);
+        return errorBoxMap;
     }
 
-
+    /**
+     * 根据提供的观测值和预测值计算皮尔逊相关系数
+     *
+     * @param observed
+     * @param predicted
+     * @return
+     */
     private double getPearsonCorrelation(List<Double> observed, List<Double> predicted) {
         double[] obsArray = observed.stream().mapToDouble(d -> d).toArray();
         double[] predArray = predicted.stream().mapToDouble(d -> d).toArray();
@@ -266,13 +277,13 @@ public class EnsoController {
 
     /**
      * 计算 year month（包括本月）未来的观测数据和真实数据的皮尔逊相关系数
+     *
      * @param year
      * @param month
      * @return
      */
     @GetMapping("/predictionExamination/errorCorr")
-    public Map<String, Double> getErrorCorr(@RequestParam("year") String year, @RequestParam("month") String month)
-    {
+    public Map<String, Double> getErrorCorr(@RequestParam("year") String year, @RequestParam("month") String month) {
         // 创建 Gson 对象和类型对象以解析 JSON
         Gson gson = new Gson();
         Type listType = new TypeToken<List<Double>>() {

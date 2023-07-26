@@ -10,6 +10,7 @@ public interface EnsoMapper {
 
     /**
      * 从 tj_enso 表中查询指定年、月、变量模型的数据
+     *
      * @param year
      * @param month
      * @param var_model
