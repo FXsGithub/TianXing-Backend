@@ -24,7 +24,7 @@ public class Tj_sieController {
      * 查询全部SIE指数
      */
     @GetMapping("/findAll/SIE")
-    @ApiOperation(value = "查询所有月份的SIE指数，按id排序", notes = "查询全部SIE指数")
+    @ApiOperation(notes = "查询所有月份的SIE指数，按id排序", value = "查询全部SIE指数")
     public List<Tj_sie> findAll(){
         return tj_sieService.findAllSIE();
     }
@@ -33,7 +33,7 @@ public class Tj_sieController {
      * 查询某月份开始起报之后12个月的SIE指数
      */
     @GetMapping("/predictionResult/SIE")
-    @ApiOperation(value = "查询月份开始起报之后12个月的SIE指数以及文本描述", notes = "根据月份查询SIE指数预测结果")
+    @ApiOperation(notes = "查询月份开始起报之后12个月的SIE指数以及文本描述", value = "根据月份查询SIE指数预测结果")
     public List<Tj_sie> findByMonth(@RequestParam String year, @RequestParam String month){
 
         // 要返回的对象列表
@@ -60,7 +60,7 @@ public class Tj_sieController {
      * 查询指定var_model以及指定月份月份开始起报之后12个月的SIE数据
      */
     @GetMapping("/findByModelandTime/SIE")
-    @ApiOperation(value = "查询指定var_model以及指定年月的SIE数据(已转化为一维数组形式）", notes = "根据年月和var_model查询SIE指数预测结果")
+    @ApiOperation(notes = "查询指定var_model以及指定年月的SIE数据(已转化为一维数组形式）", value = "根据年月和var_model查询SIE指数预测结果")
     public HashMap<String,Object> findByModelandMonth(@RequestParam String year, @RequestParam String month, @RequestParam String var_model){
 
         // 要返回的对象列表

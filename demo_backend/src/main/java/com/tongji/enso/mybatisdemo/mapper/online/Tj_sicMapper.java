@@ -12,9 +12,9 @@ public interface Tj_sicMapper {
 
     List<Tj_sic> findAll();
 
-    List<Tj_sic> findByDate(String year, String month);
+    Tj_sic findByDate(String year, String month,String day);
 
-    List<Tj_sic> findCheckoutByMonth(String year, String month);
+    List<Tj_sic> findErrorByMonth(String year, String month);
 
     List<Tj_sic> findErrorBoxByYearAndModel(String year);
 }

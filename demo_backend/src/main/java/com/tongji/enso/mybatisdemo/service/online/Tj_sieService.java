@@ -1,13 +1,10 @@
 package com.tongji.enso.mybatisdemo.service.online;
 
-import com.tongji.enso.mybatisdemo.entity.online.Meteo;
 import com.tongji.enso.mybatisdemo.entity.online.Tj_sie;
-import com.tongji.enso.mybatisdemo.mapper.online.MeteoMapper;
 import com.tongji.enso.mybatisdemo.mapper.online.Tj_sieMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.HashMap;
 import java.util.List;
 
 @Service

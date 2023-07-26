@@ -3,15 +3,15 @@
 <mapper namespace="com.tongji.enso.mybatisdemo.mapper.online.Tj_sicMapper">
 
     <select id="findByDate" resultType="Tj_sic">
-        select * from tj_sic where year=#{year} and month=#{month} and var_model="SIC_Ice-BCNet"
+        select * from tj_sic where year=#{year} and month=#{month} and day=#{day} and var_model="SIC_Ice-BCNet"
 </select>
 
     <select id="findAll" resultType="Tj_Sic">
         select * from tj_sic
     </select>
 
-    <select id="findCheckoutByMonth" resultType="Tj_sic">
-        select * from tj_sic where year=#{year} and month=#{month} and var_model!="SIC_Ice-BCNet"
+    <select id="findErrorByMonth" resultType="Tj_sic">
+        select * from tj_sic where year=#{year} and month=#{month} and var_model like concat('%', #{year}, '%')
     </select>
 
     <select id="findErrorBoxByYearAndModel" resultType="Tj_sic">
