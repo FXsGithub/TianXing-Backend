@@ -37,9 +37,9 @@ public class Tj_sicController {
      * @return: Map<String, Object>.
      */
     @GetMapping("/predictionResult/SIC")
-    @ApiOperation(notes = "查询指定日期所有经纬度的SIC指数以及文本描述(lat为纬度，lon为经度）,返回的trans_data,lat,lon均为二维数组，通过" +
-            "格点确定数据和纬度经度，如trans_data[1][1]表示格点（1,1）处的数据，" +
-            "lat[1][1]表示格点(1,1)处的纬度", value = "根据日期查询SIC指数预测结果")
+    @ApiOperation(notes = "查询指定日期所有经纬度的SIC指数，坐标以及文本描述,返回的trans_data,x_axis,y_axis均为二维数组，通过" +
+            "格点确定数据和横纵坐标，如trans_data[1][1]表示格点（1,1）处的数据，" +
+            "x_axis[1][1]表示格点(1,1)处的横坐标", value = "根据日期查询SIC指数预测结果")
     public Map<String, Object> findSICPredictionByDate(@RequestParam String year,@RequestParam String month,@RequestParam String day){
 
         Tj_sic sic = tj_sicservice.findPredictionByDate(year,month,day);
@@ -64,7 +64,6 @@ public class Tj_sicController {
         try {
             String jsonString = latlon.getLat();
             lat = objectMapper.readValue(jsonString, double[][].class);
-            sicMap.put("lat",lat);
         } catch (JsonProcessingException e) {
             e.printStackTrace();
         }
@@ -74,10 +73,29 @@ public class Tj_sicController {
         try {
             String jsonString = latlon.getLon();
             lon = objectMapper.readValue(jsonString, double[][].class);
-            sicMap.put("lon",lon);
         } catch (JsonProcessingException e) {
             e.printStackTrace();
         }
+
+        //将经纬纬度数据转化为一维平面直角坐标系坐标,设半径为100
+        double[][] x_axis=lat;
+        double[][] y_axis=lon;
+        // 获取二维数组的行数
+        int rows = lat.length;
+
+        // 使用循环遍历二维数组
+        for (int i = 0; i < rows; i++) {
+            // 获取当前行的列数
+            int cols = lat[i].length;
+            // 使用内层循环遍历当前行的所有元素
+            for (int j = 0; j < cols; j++) {
+                double r=100*(90-lat[i][j])/90;//距离原点距离
+                x_axis[i][j]= Math.cos((lon[i][j]-90)/180*2*Math.PI)*r;
+                y_axis[i][j]= Math.sin((lon[i][j]-90)/180*2*Math.PI)*r;
+            }
+        }
+        sicMap.put("x_axis",x_axis);
+        sicMap.put("y_axis",y_axis);
         return sicMap;
     }
 
