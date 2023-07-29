@@ -2,8 +2,11 @@ package com.tongji.enso.mybatisdemo.controller;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.tongji.enso.mybatisdemo.entity.online.Info_sic_latlon;
 import com.tongji.enso.mybatisdemo.entity.online.Obs_nao;
 import com.tongji.enso.mybatisdemo.entity.online.Tj_nao;
+import com.tongji.enso.mybatisdemo.entity.online.Tj_sic;
+import com.tongji.enso.mybatisdemo.service.online.Info_sic_latlonService;
 import com.tongji.enso.mybatisdemo.service.online.Obs_naoService;
 import com.tongji.enso.mybatisdemo.service.online.Tj_naoService;
 import io.swagger.annotations.ApiOperation;
@@ -24,6 +27,8 @@ public class Tj_naoController {
     private Tj_naoService tj_naoservice;
     @Autowired
     private Obs_naoService obs_naoservice;
+    @Autowired
+    private Info_sic_latlonService info_sic_latlonService;
 
     /**
      * 查询某月份的NAO指数数据
@@ -104,4 +109,51 @@ public class Tj_naoController {
         return naoMap;
     }
 
+    /**
+     * 根据年月，返回该时模型起报的6个月格点数据
+     * @param: year, month;
+     * @return: Map<String, Object>.
+     */
+     @GetMapping("/findGridData/nao")
+     @ApiOperation(notes = "根据年月，返回该时模型起报的6个月格点数据。" +
+             "返回为data1~data6数据，以及lat和lon，均以二维数组呈现", value = "根据年月返回格点数据")
+     public Map<String,Object> findGridByMonth(@RequestParam String year, @RequestParam String month) {
+
+         Tj_nao nao = tj_naoservice.findGridByMonth(year,month);
+         Info_sic_latlon latlon = info_sic_latlonService.findlatlon();
+         Map<String, Object> GridMap=new HashMap<>();
+         ObjectMapper objectMapper = new ObjectMapper();
+
+         double[][][] data = null;
+         // 将data字段转化为三维数组
+         try {
+             String jsonString = nao.getData();
+             data = objectMapper.readValue(jsonString, double[][][].class);
+         } catch (JsonProcessingException e) {
+             e.printStackTrace();
+         }
+         //将6个月的数据分别返回
+         for(int i=0;i<6;i++){
+             GridMap.put("data"+ (i + 1),data[i]);
+         }
+         //用二维数组表示纬度
+         double[][] lat=null;
+         try {
+             String jsonString = latlon.getLat();
+             lat = objectMapper.readValue(jsonString, double[][].class);
+         } catch (JsonProcessingException e) {
+             e.printStackTrace();
+         }
+         GridMap.put("lat",lat);
+         //用二维数组表示经度
+         double[][] lon=null;
+         try {
+             String jsonString = latlon.getLon();
+             lon = objectMapper.readValue(jsonString, double[][].class);
+         } catch (JsonProcessingException e) {
+             e.printStackTrace();
+         }
+         GridMap.put("lon",lon);
+         return GridMap;
+     }
 }

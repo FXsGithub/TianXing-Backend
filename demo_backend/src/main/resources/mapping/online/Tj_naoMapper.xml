@@ -6,4 +6,8 @@
         select * from tj_nao where year=#{year} and month=#{month} and var_model="index_NAO_MCD"
     </select>
 
+    <select id="findGridByMonth" resultType="Tj_nao">
+        select * from tj_nao where year=#{year} and month=#{month} and var_model="grid_NAO_MCD"
+    </select>
+
 </mapper>
