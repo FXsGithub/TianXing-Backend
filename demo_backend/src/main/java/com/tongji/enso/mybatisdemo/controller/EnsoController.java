@@ -3,6 +3,7 @@ package com.tongji.enso.mybatisdemo.controller;
 import com.tongji.enso.mybatisdemo.mapper.online.EnsoMapper;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -100,20 +101,100 @@ public class EnsoController {
      * @param month
      * @return
      */
+//    @GetMapping("/predictionExamination/monthlyComparison")
+//    public Map<String, List<Double>> getMonthlyComparison(@RequestParam("year") String year, @RequestParam("month") String month) {
+//        Gson gson = new Gson();
+//        Type listType = new TypeToken<List<Double>>() {
+//        }.getType();
+//        // 使用给定年份查询所有数据
+//        String YearResult2022 = ensoMapper.findObsEnsoByYear("2022");
+//        String YearResult2023 = ensoMapper.findObsEnsoByYear("2023");
+//        String currentYearResult = YearResult2022+ YearResult2023;
+//        List<Double> currentYearData = gson.fromJson(currentYearResult, listType);
+//
+//        List<Double> current18MonthsData;  // 用来存放从本月起（包括本月）未来18个月的数据，直到真实数据用完为止
+//
+//        current18MonthsData = currentYearData.subList(Integer.parseInt(month) - 1, currentYearData.size());
+//
+//        if (currentYearData.size() == 12)  // 需要考虑下一年的真实数据
+//        {
+//            // 查询下一年的数据
+//            String futureYear = String.valueOf(Integer.parseInt(year) + 1);
+//            String futureYearResult = ensoMapper.findObsEnsoByYear(futureYear);
+//
+//            if (futureYearResult != null) {
+//                List<Double> futureYearData = gson.fromJson(futureYearResult, listType);
+//                current18MonthsData.addAll(futureYearData);
+//                if (futureYearData.size() == 12 && current18MonthsData.size() < 18) {
+//                    // 查询下一年的下一年的数据
+//                    String futureFutureYear = String.valueOf(Integer.parseInt(year) + 2);
+//                    String futureFutureYearResult = ensoMapper.findObsEnsoByYear(futureFutureYear);
+//                    if (futureFutureYearResult != null) {
+//                        List<Double> futureFutureYearData = gson.fromJson(futureFutureYearResult, listType);
+//                        current18MonthsData.addAll(futureFutureYearData);
+//                    }
+//                }
+//            }
+//        }
+//
+//        if (current18MonthsData.size() > 18)  // 超过18个月的数据，只取前18个月
+//            current18MonthsData = current18MonthsData.subList(0, 18);
+//
+//
+//        Map<String, List<Double>> resultMap = new HashMap<>();
+//        Map<String, List<Object>> resultMap2 = new HashMap<>();
+//        String name = year + "年" + month + "月起报预报误差";
+//        List<Object> nameList = new ArrayList<>();
+//        nameList.add(name);
+//        List<Object> typeList = new ArrayList<>();
+//        typeList.add("line");
+//
+//        List<Object> lineStyleList = new ArrayList<>();
+//        lineStyleList.add(null);
+//
+//        resultMap2.put("name", nameList);
+//        resultMap2.put("type", typeList);
+//        resultMap2.put("lineStyle", lineStyleList);
+//
+//        resultMap.put("obs", current18MonthsData);
+//
+//
+//        // 获取预测数据
+//        String predictionMeanResult = ensoMapper.findEachPredictionsResultByMonthType(year, month, "nino34_mean");
+//        List<Double> predictionMeanList = gson.fromJson(predictionMeanResult, listType);  // 将结果字符串转换为列表
+//        // 只需前 current18MonthsData.size() 个数据
+//        List<Double> predictionMeanData = predictionMeanList.subList(0, current18MonthsData.size());
+//        resultMap.put("mean", predictionMeanData);
+//
+//        return resultMap;
+//    }
+
     @GetMapping("/predictionExamination/monthlyComparison")
     public Map<String, List<Double>> getMonthlyComparison(@RequestParam("year") String year, @RequestParam("month") String month) {
         Gson gson = new Gson();
-
         Type listType = new TypeToken<List<Double>>() {
         }.getType();
 
+        // 查询所有数据(之后要改）
+        String YearResult2022 = ensoMapper.findObsEnsoByYear("2022");
+        List<Double> currentYearData1 = gson.fromJson(YearResult2022, listType);
+
+        String YearResult2023 = ensoMapper.findObsEnsoByYear("2023");
+        List<Double> currentYearData2 = gson.fromJson(YearResult2023, listType);
+        List<Double> allYearData=new ArrayList<>();
+        allYearData.addAll(currentYearData1);
+        allYearData.addAll(currentYearData2);
+        List<Double> obsData;  // 用来存放obs数据
+        obsData = allYearData.subList(0 , allYearData.size());
         // 使用给定年份查询所有数据
-        String currentYearResult = ensoMapper.findObsEnsoByYear(year);
-        List<Double> currentYearData = gson.fromJson(currentYearResult, listType);
+        String CurrentYearResult = ensoMapper.findObsEnsoByYear(year);
+        List<Double> currentYearData = gson.fromJson(CurrentYearResult, listType);
 
         List<Double> current18MonthsData;  // 用来存放从本月起（包括本月）未来18个月的数据，直到真实数据用完为止
 
-        current18MonthsData = currentYearData.subList(Integer.parseInt(month) - 1, currentYearData.size());
+
+        current18MonthsData = currentYearData.subList(Integer.parseInt(month) , currentYearData.size());
+
 
         if (currentYearData.size() == 12)  // 需要考虑下一年的真实数据
         {
@@ -141,13 +222,28 @@ public class EnsoController {
 
 
         Map<String, List<Double>> resultMap = new HashMap<>();
-        resultMap.put("obs", current18MonthsData);
+        Map<String, List<Object>> resultMap2 = new HashMap<>();
+        String name = year + "年" + month + "月起报预报误差";
+        List<Object> nameList = new ArrayList<>();
+        nameList.add(name);
+        List<Object> typeList = new ArrayList<>();
+        typeList.add("line");
+
+        List<Object> lineStyleList = new ArrayList<>();
+        lineStyleList.add(null);
+
+        resultMap2.put("name", nameList);
+        resultMap2.put("type", typeList);
+        resultMap2.put("lineStyle", lineStyleList);
+
+        resultMap.put("obs", obsData);
+
 
         // 获取预测数据
         String predictionMeanResult = ensoMapper.findEachPredictionsResultByMonthType(year, month, "nino34_mean");
         List<Double> predictionMeanList = gson.fromJson(predictionMeanResult, listType);  // 将结果字符串转换为列表
         // 只需前 current18MonthsData.size() 个数据
-        List<Double> predictionMeanData = predictionMeanList.subList(0, current18MonthsData.size());
+        List<Double> predictionMeanData = predictionMeanList.subList(Integer.parseInt(month) , predictionMeanList.size());
         resultMap.put("mean", predictionMeanData);
 
         return resultMap;
@@ -308,3 +404,4 @@ public class EnsoController {
         return correlationMap;
     }
 }
+
