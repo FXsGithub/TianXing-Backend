@@ -172,6 +172,7 @@ public class EnsoController {
     @GetMapping("/predictionExamination/monthlyComparison")
     public Map<String, List<Double>> getMonthlyComparison(@RequestParam("year") String year, @RequestParam("month") String month) {
         Gson gson = new Gson();
+
         Type listType = new TypeToken<List<Double>>() {
         }.getType();
 
@@ -187,6 +188,7 @@ public class EnsoController {
         List<Double> obsData;  // 用来存放obs数据
         obsData = allYearData.subList(0 , allYearData.size());
         // 使用给定年份查询所有数据
+
         String CurrentYearResult = ensoMapper.findObsEnsoByYear(year);
         List<Double> currentYearData = gson.fromJson(CurrentYearResult, listType);
 
@@ -238,14 +240,28 @@ public class EnsoController {
 
         resultMap.put("obs", obsData);
 
-
+        int currentMonthStatic = Integer.parseInt(month);
+        int currentYearStatic = Integer.parseInt(year);
+        int currentYear,currentMonth;
         // 获取预测数据
-        String predictionMeanResult = ensoMapper.findEachPredictionsResultByMonthType(year, month, "nino34_mean");
-        List<Double> predictionMeanList = gson.fromJson(predictionMeanResult, listType);  // 将结果字符串转换为列表
-        // 只需前 current18MonthsData.size() 个数据
-        List<Double> predictionMeanData = predictionMeanList.subList(Integer.parseInt(month) , predictionMeanList.size());
-        resultMap.put("mean", predictionMeanData);
-
+        for (int i = 11; i >= 0; i--) {
+            if(currentMonthStatic-i<1){
+                currentYear = currentYearStatic-1;
+                currentMonth = currentMonthStatic+12-i;
+            }
+            else{
+                currentYear = currentYearStatic;
+                currentMonth = currentMonthStatic-i;
+            }
+            String Year = String.valueOf(currentYear);
+            String Month = String.valueOf(currentMonth);
+            String predictionMeanResult = ensoMapper.findEachPredictionsResultByMonthType(Year, Month, "nino34_mean");
+            if (predictionMeanResult != null) {
+                List<Double> predictionMeanList = gson.fromJson(predictionMeanResult, listType);  // 将结果字符串转换为列表
+                List<Double> predictionMeanData = predictionMeanList.subList(0, i+1);
+                resultMap.put(Year+"年"+Month+"月", predictionMeanData);
+            }
+        }
         return resultMap;
     }
 
