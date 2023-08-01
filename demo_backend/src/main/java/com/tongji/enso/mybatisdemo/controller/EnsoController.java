@@ -276,7 +276,7 @@ public class EnsoController {
     }
 
     /**
-     * 返回 year month 当月 mean模型预测数据和真实数据的皮尔逊相关系数
+     * 返回 year month 当月 mean 模型预测数据和真实数据的皮尔逊相关系数
      *
      * @param year
      * @param month
@@ -307,4 +307,5 @@ public class EnsoController {
 
         return correlationMap;
     }
+
 }
