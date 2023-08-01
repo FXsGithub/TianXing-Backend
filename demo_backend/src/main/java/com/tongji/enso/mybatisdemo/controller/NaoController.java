@@ -95,6 +95,16 @@ public class NaoController {
 
         Map<String, Object> result = new HashMap<>();  // 存放总的六个 option
 
+        List<Double> xData = new ArrayList<>();
+        List<Double> yData = new ArrayList<>();
+        for (double i = 1; i <= 13; i++) {
+            xData.add(i);
+        }
+        for (double j = 1; j <= 27; j++)
+        {
+            yData.add(j);
+        }
+
         for (int i = 0; i < 6; i++)
         {
             Map<String, Object> eachResult = new HashMap<>();  // 存放当 option，利用 for 循环更改其中的数据
@@ -110,13 +120,13 @@ public class NaoController {
             Map<String, Object> xAxis = new HashMap<>();
             xAxis.put("type", "category");
             xAxis.put("name", "经度");
-//            xAxis.put("data", lonList);
+            xAxis.put("data", xData);
             eachResult.put("xAxis", xAxis);
 
             Map<String, Object> yAxis = new HashMap<>();
             yAxis.put("type", "category");
             yAxis.put("name", "纬度");
-//            yAxis.put("data", latList);
+            yAxis.put("data", yData);
             eachResult.put("yAxis", yAxis);
 
             eachResult.put("series", createSeries("ours", "heatmap", null, errorDataList3D.get(i)));
@@ -124,7 +134,10 @@ public class NaoController {
             result.put("option" + (i + 1), eachResult);
         }
 
-        return result;
+        Map<String, Object> resultw = new HashMap<>();  // 存放总的六个 option
+        resultw.put("try", errorDataList3D.get(0));
+
+        return resultw;
     }
 
     /**
