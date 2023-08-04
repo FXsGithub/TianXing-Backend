@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tongji.enso.mybatisdemo.entity.online.Info_sic_latlon;
 import com.tongji.enso.mybatisdemo.entity.online.Tj_sic;
+import com.tongji.enso.mybatisdemo.service.online.ImgsService;
 import com.tongji.enso.mybatisdemo.service.online.Info_sic_latlonService;
 import com.tongji.enso.mybatisdemo.service.online.Tj_sicService;
 import io.swagger.annotations.ApiOperation;
@@ -22,7 +23,7 @@ public class Tj_sicController {
     @Autowired
     private Tj_sicService tj_sicservice;
     @Autowired
-    private Info_sic_latlonService info_sic_latlonService;
+    private ImgsService imgsservice;
 
     /**
      * 查询全部的SIC指数
@@ -32,71 +33,28 @@ public class Tj_sicController {
     public List<Tj_sic> findAll(){ return tj_sicservice.findAllSIC(); }
 
     /**
-     * 查询某月份的SIC指数
+     * 查询某年某月某日的SIC指数的模块图
      * @param: year, month, day;
-     * @return: Map<String, Object>.
+     * @return: List<String>.
      */
     @GetMapping("/predictionResult/SIC")
-    @ApiOperation(notes = "查询指定日期所有经纬度的SIC指数，坐标以及文本描述,返回的trans_data,x_axis,y_axis均为二维数组，通过" +
-            "格点确定数据和横纵坐标，如trans_data[1][1]表示格点（1,1）处的数据，" +
-            "x_axis[1][1]表示格点(1,1)处的横坐标", value = "根据日期查询SIC指数预测结果")
-    public Map<String, Object> findSICPredictionByDate(@RequestParam String year,@RequestParam String month,@RequestParam String day){
+    @ApiOperation(notes = "查询指定日期SIC指数的模块图", value = "根据日期查询SIC指数模块图的地址")
+    public List<String> findSICPredictionByDate(@RequestParam String year,@RequestParam String month,@RequestParam String day){
 
-        Tj_sic sic = tj_sicservice.findPredictionByDate(year,month,day);
-        Info_sic_latlon latlon = info_sic_latlonService.findlatlon();
-        Map<String, Object> sicMap=new HashMap<>();
-        ObjectMapper objectMapper = new ObjectMapper();
+        String data = imgsservice.findSICImgByDate(year,month,day);
+        int index = 0;
+        List<String> sicList=new ArrayList<>();
 
-        double[][][] data = null;
-        // 将data字段转化为三维数组
-        try {
-            String jsonString = sic.getData();
-            data = objectMapper.readValue(jsonString, double[][][].class);
-        } catch (JsonProcessingException e) {
-            e.printStackTrace();
-        }
-        //用二维数组表示该日的sic指数预测结果
-        double[][] trans_data=data[0];
-        sicMap.put("trans_data",trans_data);
-
-        //用二维数组表示纬度
-        double[][] lat=null;
-        try {
-            String jsonString = latlon.getLat();
-            lat = objectMapper.readValue(jsonString, double[][].class);
-        } catch (JsonProcessingException e) {
-            e.printStackTrace();
-        }
-
-        //用二维数组表示经度
-        double[][] lon=null;
-        try {
-            String jsonString = latlon.getLon();
-            lon = objectMapper.readValue(jsonString, double[][].class);
-        } catch (JsonProcessingException e) {
-            e.printStackTrace();
-        }
-
-        //将经纬纬度数据转化为一维平面直角坐标系坐标,设半径为100
-        double[][] x_axis=lat;
-        double[][] y_axis=lon;
-        // 获取二维数组的行数
-        int rows = lat.length;
-
-        // 使用循环遍历二维数组
-        for (int i = 0; i < rows; i++) {
-            // 获取当前行的列数
-            int cols = lat[i].length;
-            // 使用内层循环遍历当前行的所有元素
-            for (int j = 0; j < cols; j++) {
-                double r=100*(90-lat[i][j])/90;//距离原点距离
-                x_axis[i][j]= Math.cos((lon[i][j]-90)/180*2*Math.PI)*r;
-                y_axis[i][j]= Math.sin((lon[i][j]-90)/180*2*Math.PI)*r;
+        for(int i = 0; i<data.length();i++){
+            char c = data.charAt(i);
+            if(c == ','){
+                sicList.add(data.substring(index,i));
+                index = i + 1;
             }
         }
-        sicMap.put("x_axis",x_axis);
-        sicMap.put("y_axis",y_axis);
-        return sicMap;
+        sicList.add(data.substring(index));
+
+        return sicList;
     }
 
     @GetMapping("/error")

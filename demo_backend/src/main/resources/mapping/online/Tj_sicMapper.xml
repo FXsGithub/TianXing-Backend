@@ -6,7 +6,7 @@
         select * from tj_sic where year=#{year} and month=#{month} and day=#{day} and var_model="SIC_Ice-BCNet"
     </select>
 
-    <select id="findAll" resultType="Tj_Sic">
+    <select id="findAll" resultType="Tj_sic">
         select * from tj_sic
     </select>
 
