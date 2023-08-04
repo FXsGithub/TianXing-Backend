@@ -7,8 +7,8 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor //全参构造函数
 @NoArgsConstructor //无参构造函数
-public class obs_enso {
+public class info_sic_latlon {
     private int id;
-    private String year;
-    private String data;
+    private String lat;
+    private String lon;
 }

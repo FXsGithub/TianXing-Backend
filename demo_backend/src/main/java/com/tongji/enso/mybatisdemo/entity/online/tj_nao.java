@@ -7,8 +7,10 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor //全参构造函数
 @NoArgsConstructor //无参构造函数
-public class obs_enso {
+public class tj_nao {
     private int id;
     private String year;
+    private String month;
     private String data;
+    private String var_model;
 }
