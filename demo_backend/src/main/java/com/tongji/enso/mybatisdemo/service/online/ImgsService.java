@@ -25,4 +25,7 @@ public class ImgsService {
         return imgsmapper.findAllByType(type);
     }
 
+    public String findNAOCORRImgByMonth(String year, String month){
+        return imgsmapper.findNAOCORRByMonth(year,month);
+    }
 }

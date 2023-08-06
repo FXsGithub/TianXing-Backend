@@ -16,6 +16,8 @@ public interface ImgsMapper {
 
     String findNAOByMonth(String year, String month);
 
+    String findNAOCORRByMonth(String year, String month);
+
     List<Imgs> findAllByType(String type);
 
     /**

@@ -216,4 +216,30 @@ public class Tj_naoController {
 
         return naoMap;
      }
+
+    /**
+     * 初始化预测结果误差分布图
+     * @param: null;
+     * @return: Map<String, Object>.
+     */
+    @GetMapping("/initialize/naoCORR")
+    @ApiOperation(notes = "初始化预测结果误差分布图，返回可查询年月", value = "初始化预测结果误差分布图")
+     public Map<String, Object> initialNAOCORR(){
+         List<Imgs> imgsList = imgsservice.findAllByType("NAO_CORR");
+         Map<String, Object> naoMap=new HashMap<>();
+
+        // 返回最早查询年月和最晚查询年月
+        String end_year=imgsList.get(imgsList.size()-1).getYear();
+        String end_month=imgsList.get(imgsList.size()-1).getMonth();
+        naoMap.put("start_year",imgsList.get(0).getYear());
+        naoMap.put("start_month",imgsList.get(0).getMonth());
+        naoMap.put("end_year",end_year);
+        naoMap.put("end_month",end_month);
+
+        // 按最晚查询年月查询图片地址
+        String data=imgsservice.findNAOCORRImgByMonth(end_year,end_month);
+        naoMap.put("data",data);
+
+        return naoMap;
+     }
 }
