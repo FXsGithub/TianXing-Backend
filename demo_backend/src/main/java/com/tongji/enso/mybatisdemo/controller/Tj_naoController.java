@@ -144,7 +144,7 @@ public class Tj_naoController {
      */
      @GetMapping("/initialize/naoPrediction")
      @ApiOperation(notes = "初始化预报结果折线图，返回可查询年月", value = "初始化预报结果折线图")
-     public Map<String, Object> initializeNAOPrediction(){
+     public Map<String, Object> initialNAOPrediction(){
          List<Obs_nao> naoList = obs_naoservice.findNAOByModel("index_NAO_MCD");
          Map<String, Object> naoMap=new HashMap<>();
 
@@ -187,7 +187,7 @@ public class Tj_naoController {
      */
     @GetMapping("/initialize/naoGrid")
     @ApiOperation(notes = "初始化预报结果折模块图，返回可查询年月", value = "初始化预报结果模块图")
-     public Map<String, Object> initializeNAOGrid(){
+     public Map<String, Object> initialNAOGrid(){
         List<Imgs> imgsList = imgsservice.findAllByType("NAO");
         Map<String, Object> naoMap=new HashMap<>();
 
