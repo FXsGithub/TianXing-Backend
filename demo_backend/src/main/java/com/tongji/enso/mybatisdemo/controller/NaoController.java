@@ -3,7 +3,9 @@ package com.tongji.enso.mybatisdemo.controller;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.tongji.enso.mybatisdemo.mapper.online.NaoMapper;
+import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -50,7 +52,8 @@ public class NaoController {
      * 根据年月，返回该时起报，模型预报6个月的误差 （for 预测结果误差分布图）
      * eg. http://localhost:8888/nao/predictionExamination/error?year=2021&month=6
      */
-    @RequestMapping("/predictionExamination/error")
+    @GetMapping("/predictionExamination/error")
+    @ApiOperation(value = "根据年月，返回该时起报，模型预报6个月的误差")
     public Map<String, Object> getErrorByMonthType(String year, String month) {
         String forecastData = naoMapper.findTJNaoResultByMonthType(year, month, "grid_NAO_MCD");
         String observedData = naoMapper.findObsNaoResultByMonthType(year, month, "grid_NAO_MCD");
@@ -144,8 +147,8 @@ public class NaoController {
      * 返回 tj_nao 表中 "all"，绘制三条折线 （for NAOI 指数预测的相关系数）
      * eg. http://localhost:8888/nao/predictionExamination/naoi
      */
-
-    @RequestMapping("/predictionExamination/naoi")
+    @GetMapping("/predictionExamination/naoi")
+    @ApiOperation(value = "返回 tj_nao 表中 'all'，绘制三条折线")
     public Map<String, Object> getNaoi() {
         String allCorrECMWFData = naoMapper.findTJNaoResultByMonthType("all", "all", "corr_lead1-6_ECMWF");
         String allCorrECCCData = naoMapper.findTJNaoResultByMonthType("all", "all", "corr_lead1-6_ECCC");

@@ -3,6 +3,7 @@ import com.tongji.enso.mybatisdemo.mapper.online.*;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
+import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -33,6 +34,7 @@ public class EnsoController {
      * @return
      */
     @GetMapping("/predictionResult/linechart")
+    @ApiOperation(notes = "For Niño3.4指数预测结果", value = "从 tj_enso 表中查询指定年、月的 Nino34（即 ENSO 指数） 数据（五种模型）")
     public Map<String, List<Double>> getLineChartData(@RequestParam("year") String year, @RequestParam("month") String month) {
         Gson gson = new Gson();
         Type listType = new TypeToken<List<Double>>() {
@@ -65,7 +67,9 @@ public class EnsoController {
 
 
     /**
-     * for Niño3.4区SST集合平均预测结果  --- 学长说使用 xxxssta 数据绘制
+     * For Niño3.4区SST集合平均预测结果  --- 学长说使用 xxxssta 数据绘制
+     * 从 tj_enso 表中查询指定年、月的 Niño3.4区SST集合平均预测结果
+     *
      * http://localhost:8888/enso/predictionResult/ssta?year=2023&month=4&monthIndex=1
      *
      * @param year
@@ -74,6 +78,7 @@ public class EnsoController {
      * @return
      */
     @GetMapping("/predictionResult/ssta")
+    @ApiOperation(notes = "For Niño3.4区SST集合平均预测结果", value = "从 tj_enso 表中查询指定年、月的 Niño3.4区SST集合平均预测结果")
     public Map<String, List<List<Double>>> getSstaData(@RequestParam("year") String year, @RequestParam("month") String month, @RequestParam("monthIndex") int monthIndex) {
         String result = ensoMapper.findEachPredictionsResultByMonthType(year, month, "ssta_mean");
 
@@ -100,6 +105,7 @@ public class EnsoController {
      * @return
      */
     @GetMapping("/predictionExamination/monthlyComparison")
+    @ApiOperation(notes = "根据指定的年份和月份，返回该月的观测数据和预测数据", value = "根据指定的年份和月份，返回该月的观测数据和预测数据")
     public Map<String, List<Double>> getMonthlyComparison(@RequestParam("year") String year, @RequestParam("month") String month) {
         Gson gson = new Gson();
 
@@ -161,6 +167,7 @@ public class EnsoController {
      * @return
      */
     @GetMapping("/predictionExamination/error")
+    @ApiOperation(notes = "计算预测模型 nino34_mean 与观测数据在指定年月的绝对误差", value = "计算预测模型 nino34_mean 与观测数据在指定年月的绝对误差")
     public Map<String, List<Double>> getError(@RequestParam("year") String year, @RequestParam("month") String month) {
         Gson gson = new Gson();
         Type listType = new TypeToken<List<Double>>() {
@@ -233,6 +240,7 @@ public class EnsoController {
      * @return
      */
     @GetMapping("/predictionExamination/errorBox")
+    @ApiOperation(notes = "预测模型 nino34_mean 预测误差箱形图绘制需求数据：最大值、最小值、中位数、上四分位数（Q1）、下四分位数（Q3）五个统计量", value = "预测模型 nino34_mean 预测误差箱形图绘制需求数据：最大值、最小值、中位数、上四分位数（Q1）、下四分位数（Q3）五个统计量")
     public Map<String, Map<String, Double>> getErrorBox(@RequestParam("year") String year, @RequestParam("month") String month) {
         Gson gson = new Gson();
         Type listType = new TypeToken<List<Double>>() {
@@ -282,6 +290,7 @@ public class EnsoController {
      * @return
      */
     @GetMapping("/predictionExamination/errorCorr")
+    @ApiOperation(notes = "返回 year month 当月 mean 模型预测数据和真实数据的皮尔逊相关系数", value = "返回 year month 当月 mean 模型预测数据和真实数据的皮尔逊相关系数")
     public Map<String, Double> getErrorCorr(@RequestParam("year") String year, @RequestParam("month") String month) {
         // 创建 Gson 对象和类型对象以解析 JSON
         Gson gson = new Gson();

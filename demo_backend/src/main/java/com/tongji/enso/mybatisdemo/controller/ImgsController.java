@@ -2,7 +2,9 @@ package com.tongji.enso.mybatisdemo.controller;
 
 import com.tongji.enso.mybatisdemo.entity.online.Imgs;
 import com.tongji.enso.mybatisdemo.mapper.online.ImgsMapper;
+import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -23,7 +25,8 @@ public class ImgsController {
      * @param day
      * @return
      */
-    @RequestMapping("/WEA_MSLP/getImgsPath")
+    @GetMapping("/WEA_MSLP/getImgsPath")
+    @ApiOperation(notes = "获取指定 年、月、日 的图片路径 WEA_MSLP", value = "获取指定 年、月、日 的图片路径 WEA_MSLP")
     public Map<String, Object> getMSLPImgsPathByDay(String year, String month, String day) {
         List<Imgs> imgsData = imgsMapper.findImgsInfoByDayType(year, month, day, "WEA_MSLP");
 
@@ -66,7 +69,8 @@ public class ImgsController {
      * @param day
      * @return
      */
-    @RequestMapping("/WEA_T2M/getImgsPath")
+    @GetMapping("/WEA_T2M/getImgsPath")
+    @ApiOperation(notes = "获取指定 年、月、日 的图片路径 WEA_T2M", value = "获取指定 年、月、日 的图片路径 WEA_T2M")
     public Map<String, Object> getT2MImgsPathByDay(String year, String month, String day) {
         List<Imgs> imgsData = imgsMapper.findImgsInfoByDayType(year, month, day, "WEA_T2M");
 
@@ -105,7 +109,8 @@ public class ImgsController {
      * 获取指定 年、月、日 的图片路径 WEA_TP
      * eg. http://localhost:8080/imgs/WEA_TP/getImgsPath?year=2019&month=1&day=1
      */
-    @RequestMapping("/WEA_TP/getImgsPath")
+    @GetMapping("/WEA_TP/getImgsPath")
+    @ApiOperation(notes = "获取指定 年、月、日 的图片路径 WEA_TP", value = "获取指定 年、月、日 的图片路径 WEA_TP")
     public Map<String, Object> getTPImgsPathByDay(String year, String month, String day) {
         List<Imgs> imgsData = imgsMapper.findImgsInfoByDayType(year, month, day, "WEA_TP");
 
@@ -145,7 +150,8 @@ public class ImgsController {
      * eg. http://localhost:8080/imgs/WEA_U10/getImgsPath?year=2019&month=1&day=1
      */
 
-    @RequestMapping("/WEA_U10/getImgsPath")
+    @GetMapping("/WEA_U10/getImgsPath")
+    @ApiOperation(notes = "获取指定 年、月、日 的图片路径 WEA_U10", value = "获取指定 年、月、日 的图片路径 WEA_U10")
     public Map<String, Object> getU10ImgsPathByDay(String year, String month, String day) {
         List<Imgs> imgsData = imgsMapper.findImgsInfoByDayType(year, month, day, "WEA_U10");
 
@@ -184,7 +190,8 @@ public class ImgsController {
      * 初始化：返回可选年、月、日范围 WEA_MSLP
      * eg. http://localhost:8080/imgs/WEA_MSLP/getInitData
      */
-    @RequestMapping("/WEA_MSLP/getInitData")
+    @GetMapping("/WEA_MSLP/getInitData")
+    @ApiOperation(notes = "初始化：返回可选年、月、日范围 WEA_MSLP", value = "初始化：返回可选年、月、日范围 WEA_MSLP")
     public Map<String, Object> getMSLPInitMonth()
     {
         List<Imgs> imgsData = imgsMapper.findImgsInfoByType("WEA_MSLP");
@@ -212,7 +219,8 @@ public class ImgsController {
      * 初始化：返回可选年、月、日范围 WEA_T2M
      * http://localhost:8080/imgs/WEA_T2M/getInitData
      */
-    @RequestMapping("/WEA_T2M/getInitData")
+    @GetMapping("/WEA_T2M/getInitData")
+    @ApiOperation(notes = "初始化：返回可选年、月、日范围 WEA_T2M", value = "初始化：返回可选年、月、日范围 WEA_T2M")
     public Map<String, Object> getT2MInitMonth()
     {
         List<Imgs> imgsData = imgsMapper.findImgsInfoByType("WEA_T2M");
@@ -240,7 +248,8 @@ public class ImgsController {
      * 初始化：返回可选年、月、日范围 WEA_TP
      * eg. http://localhost:8080/imgs/WEA_TP/getInitData
      */
-    @RequestMapping("/WEA_TP/getInitData")
+    @GetMapping("/WEA_TP/getInitData")
+    @ApiOperation(notes = "初始化：返回可选年、月、日范围 WEA_TP", value = "初始化：返回可选年、月、日范围 WEA_TP")
     public Map<String, Object> getTPInitMonth()
     {
         List<Imgs> imgsData = imgsMapper.findImgsInfoByType("WEA_TP");
@@ -268,7 +277,8 @@ public class ImgsController {
      * 初始化：返回可选年、月、日范围 WEA_U10
      * eg. http://localhost:8080/imgs/WEA_U10/getInitData
      */
-    @RequestMapping("/WEA_U10/getInitData")
+    @GetMapping("/WEA_U10/getInitData")
+    @ApiOperation(notes = "初始化：返回可选年、月、日范围 WEA_U10", value = "初始化：返回可选年、月、日范围 WEA_U10")
     public Map<String, Object> getU10InitMonth()
     {
         List<Imgs> imgsData = imgsMapper.findImgsInfoByType("WEA_U10");

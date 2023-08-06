@@ -4,7 +4,9 @@ import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.tongji.enso.mybatisdemo.entity.online.*;
 import com.tongji.enso.mybatisdemo.mapper.online.InfoMapper;
+import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -23,7 +25,8 @@ public class InfoController {
     /**
      * 获取全部经纬度数据
      */
-    @RequestMapping("/getAllLatLon")
+    @GetMapping("/getAllLatLon")
+    @ApiOperation(value = "获取全部经纬度数据", notes = "获取全部经纬度数据")
     public Map<String, List<Double>> getAllLatLon() {
         List<info_sic_latlon> latLonDataList = latLonMapper.findInfoSicLatlon();
 

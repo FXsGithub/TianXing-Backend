@@ -7,7 +7,7 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor //全参构造函数
 @NoArgsConstructor //无参构造函数
-public class obs_enso {
+public class Obs_enso {
     private int id;
     private String year;
     private String data;
