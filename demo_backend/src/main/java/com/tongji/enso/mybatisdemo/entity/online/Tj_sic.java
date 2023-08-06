@@ -5,15 +5,13 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Data
-@AllArgsConstructor //全参构造函数
-@NoArgsConstructor //无参构造函数
-public class Imgs {
+@AllArgsConstructor
+@NoArgsConstructor
+public class Tj_sic {
     private int id;
     private String year;
     private String month;
     private String day;
-    private String type;
-
+    private String var_model;
     private String data;
-
 }
