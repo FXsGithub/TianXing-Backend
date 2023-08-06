@@ -6,6 +6,8 @@ import com.tongji.enso.mybatisdemo.mapper.online.Tj_naoMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 public class Tj_naoService {
 
@@ -18,5 +20,9 @@ public class Tj_naoService {
 
     public Tj_nao findGridByMonth(String year, String month) {
         return tj_naomapper.findGridByMonth(year,month);
+    }
+
+    public List<Tj_nao> findNAOByModel(String var_model){
+        return tj_naomapper.findAllByModel(var_model);
     }
 }

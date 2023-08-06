@@ -9,4 +9,8 @@
     <select id="findNAOByMonth" resultType="String">
         select data from imgs where year=#{year} and month=#{month} and type="NAO"
     </select>
+
+    <select id="findAllByType" resultType="Imgs">
+        select * from imgs where type=#{type}
+    </select>
 </mapper>

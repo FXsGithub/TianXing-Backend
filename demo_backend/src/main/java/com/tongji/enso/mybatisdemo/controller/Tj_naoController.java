@@ -2,10 +2,7 @@ package com.tongji.enso.mybatisdemo.controller;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.tongji.enso.mybatisdemo.entity.online.Info_sic_latlon;
-import com.tongji.enso.mybatisdemo.entity.online.Obs_nao;
-import com.tongji.enso.mybatisdemo.entity.online.Tj_nao;
-import com.tongji.enso.mybatisdemo.entity.online.Tj_sic;
+import com.tongji.enso.mybatisdemo.entity.online.*;
 import com.tongji.enso.mybatisdemo.mapper.online.ImgsMapper;
 import com.tongji.enso.mybatisdemo.service.online.ImgsService;
 import com.tongji.enso.mybatisdemo.service.online.Info_sic_latlonService;
@@ -13,6 +10,7 @@ import com.tongji.enso.mybatisdemo.service.online.Obs_naoService;
 import com.tongji.enso.mybatisdemo.service.online.Tj_naoService;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.relational.core.dialect.HsqlDbDialect;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -127,6 +125,7 @@ public class Tj_naoController {
 
          for(int i = 0; i<data.length();i++){
              char c = data.charAt(i);
+             // 已逗号为分隔符分割图片地址
              if(c == ','){
                  naoList.add(data.substring(index,i));
                  index = i + 1;
@@ -135,5 +134,86 @@ public class Tj_naoController {
          naoList.add(data.substring(index));
 
          return naoList;
+     }
+
+    /**
+     * 初始化预报结果折线图
+     * 因为观测数据是以年为单位存储的，而每次要返回六个月的数据，所以最晚可查询月份一定是12-5=7月
+     * @param: null;
+     * @return: Map<String, Object>.
+     */
+     @GetMapping("/initialize/naoPrediction")
+     @ApiOperation(notes = "初始化预报结果折线图，返回可查询年月", value = "初始化预报结果折线图")
+     public Map<String, Object> initializeNAOPrediction(){
+         List<Obs_nao> naoList = obs_naoservice.findNAOByModel("index_NAO_MCD");
+         Map<String, Object> naoMap=new HashMap<>();
+
+         // 返回最早可查询年月和最晚可查询年月
+         String end_year=naoList.get(naoList.size()-1).getYear();
+         naoMap.put("start_year",naoList.get(0).getYear());
+         naoMap.put("start_month",naoList.get(0).getMonth());
+         naoMap.put("end_year",naoList.get(naoList.size()-1).getYear());
+         naoMap.put("end_month","7");
+
+         // 按最晚可查询年月查询预报数据和观测数据
+         Tj_nao preResult = tj_naoservice.findPredictionByMonthAndModel(end_year,"7");
+         Obs_nao obsResult = obs_naoservice.findObservationByMonthAndModel(end_year,"1");
+         String jsonString;
+         ObjectMapper objectMapper=new ObjectMapper();
+         double []pre_data = new double[6];
+         double []obs_data = new double[6];
+         double []data = null;
+         try{
+             jsonString = preResult.getData();
+             pre_data = objectMapper.readValue(jsonString,double[].class);
+             jsonString = obsResult.getData();
+             data=objectMapper.readValue(jsonString,double[].class);
+             for(int i = 0; i < 6; i++){
+                 obs_data[i] = data[6 + i];
+             }
+         }catch (JsonProcessingException e){
+             e.printStackTrace();
+         }
+         naoMap.put("predictionData", pre_data);
+         naoMap.put("observationData", obs_data);
+
+         return naoMap;
+     }
+
+    /**
+     * 初始化预报结果模块图
+     * @param: null;
+     * @return: Map<String, Object>.
+     */
+    @GetMapping("/initialize/naoGrid")
+    @ApiOperation(notes = "初始化预报结果折模块图，返回可查询年月", value = "初始化预报结果模块图")
+     public Map<String, Object> initializeNAOGrid(){
+        List<Imgs> imgsList = imgsservice.findAllByType("NAO");
+        Map<String, Object> naoMap=new HashMap<>();
+
+        // 返回最早查询年月和最晚查询年月
+        String end_year=imgsList.get(imgsList.size()-1).getYear();
+        String end_month=imgsList.get(imgsList.size()-1).getMonth();
+        naoMap.put("start_year",imgsList.get(0).getYear());
+        naoMap.put("start_month",imgsList.get(0).getMonth());
+        naoMap.put("end_year",end_year);
+        naoMap.put("end_month",end_month);
+
+        // 按最晚查询年月查询图片地址
+        String data = imgsservice.findNAOImgByMonth(end_year,end_month);
+        int index = 0;
+        List<String> naoList=new ArrayList<>();
+        for(int i = 0; i<data.length();i++){
+            char c = data.charAt(i);
+            // 以逗号为分隔符分割图片地址
+            if(c == ','){
+                naoList.add(data.substring(index,i));
+                index = i + 1;
+            }
+        }
+        naoList.add(data.substring(index));
+        naoMap.put("data",naoList);
+
+        return naoMap;
      }
 }

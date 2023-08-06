@@ -6,4 +6,8 @@
         select * from obs_nao where year=#{year} and month=#{month} and var_model="index_NAO_MCD"
     </select>
 
+    <select id="findAllByModel" resultType="Obs_nao">
+        select * from obs_nao where var_model=#{var_model}
+    </select>
+
 </mapper>

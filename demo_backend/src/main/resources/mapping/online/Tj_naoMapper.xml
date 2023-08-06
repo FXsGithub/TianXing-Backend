@@ -10,4 +10,8 @@
         select * from tj_nao where year=#{year} and month=#{month} and var_model="grid_NAO_MCD"
     </select>
 
+    <select id="findAllByModel" resultType="Tj_nao">
+        select * from tj_nao where var_model=#{var_model}
+    </select>
+
 </mapper>
