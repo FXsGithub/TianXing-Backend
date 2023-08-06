@@ -15,4 +15,11 @@ public interface ImgsMapper {
     @Select("SELECT * FROM imgs WHERE year = #{year} AND month = #{month} AND day = #{day} AND type = #{type}")
     List<Imgs> findImgsInfoByDayType(@RequestParam("year") String year, @RequestParam("month") String month, @RequestParam("day") String day, @RequestParam("type") String type);
 
+    /**
+     * 从 imgs 中查询指定类型的数据
+     * @param type
+     * @return
+     */
+    @Select("SELECT * FROM imgs WHERE type = #{type}")
+    List<Imgs> findImgsInfoByType(@RequestParam("type") String type);
 }

@@ -53,7 +53,7 @@ public class ImgsController {
 
         result.put("titles", titlesList);
         result.put("imgSrc", imgPaths);
-        result.put("tests", testsList);
+        result.put("texts", testsList);
 
         return result;
     }
@@ -96,7 +96,7 @@ public class ImgsController {
 
         result.put("titles", titlesList);
         result.put("imgSrc", imgPaths);
-        result.put("tests", testsList);
+        result.put("texts", testsList);
 
         return result;
     }
@@ -176,6 +176,35 @@ public class ImgsController {
         result.put("titles", titlesList);
         result.put("imgSrc", imgPaths);
         result.put("texts", testsList);
+
+        return result;
+    }
+
+    /**
+     * 初始化：返回可选年、月、日范围
+     * eg. http://localhost:8080/imgs/WEA_MSLP/getInitData
+     */
+    @RequestMapping("/WEA_MSLP/getInitData")
+    public Map<String, Object> getMSLPInitMonth()
+    {
+        List<Imgs> imgsData = imgsMapper.findImgsInfoByType("WEA_MSLP");
+
+        List<String> years = new ArrayList<>();
+        List<String> months = new ArrayList<>();
+        List<String> days = new ArrayList<>();
+
+        for (Imgs img : imgsData)
+        {
+            years.add(img.getYear());
+            months.add(img.getMonth());
+            days.add(img.getDay());
+        }
+
+        Map<String, Object> result = new HashMap<>();
+
+        result.put("years", years);
+        result.put("months", months);
+        result.put("days", days);
 
         return result;
     }
