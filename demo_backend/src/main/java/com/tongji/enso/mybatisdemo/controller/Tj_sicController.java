@@ -116,4 +116,79 @@ public class Tj_sicController {
         return sicMap;
     }
 
+
+    /**
+     * 查询SIC预测结果图的可查询日期和最新预报结果
+     */
+    @GetMapping("/initial/SICprediction")
+    @ApiOperation(notes = "SIC可查询日期及最新预报结果", value = "查询SIC预测结果图的可查询日期和最新预报结果")
+    public HashMap<String,Object> initialSICprediction(){
+        List<String> yearList=Arrays.asList("2023");
+        List<String> monthList=Arrays.asList("6");
+        List<String> dateList=Arrays.asList("5","12","19","26");
+        // 要返回的HashMap
+        HashMap<String, Object> return_hashmap = new HashMap<String, Object>();
+        return_hashmap.put("yearList",yearList);
+        return_hashmap.put("monthList",monthList);
+        return_hashmap.put("dateList",dateList);
+
+        String data = imgsservice.findSICImgByDate("2023","6","26");
+        int index = 0;
+        List<String> sicList=new ArrayList<>();
+
+        for(int i = 0; i<data.length();i++){
+            char c = data.charAt(i);
+            if(c == ','){
+                sicList.add(data.substring(index,i));
+                index = i + 1;
+            }
+        }
+        sicList.add(data.substring(index));
+        return_hashmap.put("sicInitial",sicList);
+
+        return return_hashmap;
+    }
+
+    /**
+     * 查询SIC预测结果误差折线图的可查询日期和最新结果
+     */
+    @GetMapping("/initial/SICError")
+    @ApiOperation(notes = "SIC预测结果误差可查询日期和最新结果", value = "查询SIC预测结果误差折线图的可查询日期和最新结果")
+    public HashMap<String,Object> initialSICerror(){
+        List<String> yearList=Arrays.asList("2023");
+        List<String> monthList=Arrays.asList("1");
+        List<String> dateList=Arrays.asList("1");
+        // 要返回的HashMap
+        HashMap<String, Object> return_hashmap = new HashMap<String, Object>();
+        return_hashmap.put("yearList",yearList);
+        return_hashmap.put("monthList",monthList);
+        return_hashmap.put("dateList",dateList);
+
+        Map<String,Object> SICerrorList =findSICErrorByMonth("2023","1");
+        return_hashmap.put("SICerrorInitial",SICerrorList);
+
+        return return_hashmap;
+    }
+
+    /**
+     * 查询SIC回报结果误差箱型图的可查询日期和最新结果
+     */
+    @GetMapping("/initial/SICErrorBox")
+    @ApiOperation(notes = "SIC回报结果误差可查询日期和最新结果", value = "查询SIC回报结果误差箱型图的可查询日期和最新结果")
+    public Map<String,Object> initialSICerrorbox(){
+        List<String> yearList=Arrays.asList("2022");
+        List<String> monthList=Arrays.asList("1");
+        List<String> dateList=Arrays.asList("1");
+        // 要返回的HashMap
+        Map<String, Object> return_hashmap = new HashMap<String, Object>();
+        return_hashmap.put("yearList",yearList);
+        return_hashmap.put("monthList",monthList);
+        return_hashmap.put("dateList",dateList);
+
+        Map<String,Object> SICerrorboxList =findSICErrorBoxByYear("2022");
+        return_hashmap.put("SICerrorboxInitial",SICerrorboxList);
+
+        return return_hashmap;
+    }
+
 }

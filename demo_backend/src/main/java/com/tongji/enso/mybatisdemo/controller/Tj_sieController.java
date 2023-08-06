@@ -11,8 +11,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/seaice")
@@ -104,6 +106,58 @@ public class Tj_sieController {
                 e.printStackTrace();
             }
         }
+
+        return return_hashmap;
+    }
+
+    /**
+     * 查询SIE预测结果图的可查询日期和最新预报
+     */
+    @GetMapping("/initial/SIEprediction")
+    @ApiOperation(value = "SIE可查询日期与最新预报结果", notes = "查询SIE指数预测结果图的可查询日期和最新预报")
+    public HashMap<String ,Object> initialSIEprediction(){
+        List<String> yearList = Arrays.asList("2020", "2021", "2022", "2023");
+        List<String> monthList=Arrays.asList("1");
+        // 要返回的HashMap
+        HashMap<String, Object> return_hashmap = new HashMap<String, Object>();
+        return_hashmap.put("yearList",yearList);
+        return_hashmap.put("monthList",monthList);
+
+        List<Tj_sie> sieList = tj_sieService.findSIEByMonth("2023", "1");
+        // 使用ObjectMapper进行JSON数据解析
+        ObjectMapper objectMapper = new ObjectMapper();
+        // 遍历返回结果中的每个Tj_sie对象，对其data字段进行解析，并替换为一维数组
+        for (Tj_sie sie : sieList) {
+            String jsonData = sie.getData(); // 获取JSON数据的字符串形式
+            try {
+                // 将JSON数据转换为一维double数组
+                double[] dataArray = objectMapper.readValue(jsonData, double[].class);
+                // 将解析后的一维数组设置到Tj_sie对象的data字段中
+                sie.setTrans_data(dataArray);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        return_hashmap.put("sieInitial",sieList);
+
+        return return_hashmap;
+    }
+
+    /**
+     * 查询SIE预测结果误差折线图的可查询日期和最新结果
+     */
+    @GetMapping("/initial/SIEErrorAnalysis")
+    @ApiOperation(notes = "SIE预测误差分析可查询日期和最新结果", value = "查询SIE误差分析图的可查询日期和最新结果")
+    public HashMap<String,Object> initialSIEerrorAnalysis(){
+        List<String> yearList=Arrays.asList("2020-2022");
+        List<String> monthList=Arrays.asList("1");
+        // 要返回的HashMap
+        HashMap<String, Object> return_hashmap = new HashMap<String, Object>();
+        return_hashmap.put("yearList",yearList);
+        return_hashmap.put("monthList",monthList);
+
+        Map<String,Object> SIEerrorList =findErrorAnalysis("2020-2022");
+        return_hashmap.put("SIEerrorInitial",SIEerrorList);
 
         return return_hashmap;
     }
