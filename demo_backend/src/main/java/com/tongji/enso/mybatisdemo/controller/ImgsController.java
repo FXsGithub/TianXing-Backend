@@ -27,10 +27,33 @@ public class ImgsController {
     public Map<String, Object> getMSLPImgsPathByDay(String year, String month, String day) {
         List<Imgs> imgsData = imgsMapper.findImgsInfoByDayType(year, month, day, "WEA_MSLP");
 
+        // 将 data 字段从 JSON 字符串转换为 List<String>
+        List<String> imgPaths = new ArrayList<>();
+        if (!imgsData.isEmpty()) {
+            String imgSrcData = imgsData.get(0).getData();
+            imgPaths = Arrays.asList(imgSrcData.split(","));
+        }
+
         Map<String, Object> result = new HashMap<>();
 
-        result.put("imgSrc", imgsData);
+        // 从 0 时开始，每次 + 6
+        int hour = 0;
+        List<String> titlesList = new ArrayList<>();
+        for (int i = 0; i < imgPaths.size(); i++)
+        {
+            titlesList.add(String.format("%s年%s月%s日%d时待定待定", year, month, day, hour));
+            hour+= 6;
+        }
 
+        List<String> testsList = new ArrayList<>();
+        for (int i = 0; i < imgPaths.size(); i++)
+        {
+            testsList.add("待定待定");
+        }
+
+        result.put("titles", titlesList);
+        result.put("imgSrc", imgPaths);
+        result.put("tests", testsList);
 
         return result;
     }
@@ -110,9 +133,9 @@ public class ImgsController {
             testsList.add("赤道地区与北半球降水较多，南半球降水较少");
         }
 
-        result.put("title", titlesList);
+        result.put("titles", titlesList);
         result.put("imgSrc", imgPaths);
-        result.put("text", testsList);
+        result.put("texts", testsList);
 
         return result;
     }
@@ -126,8 +149,34 @@ public class ImgsController {
     public Map<String, Object> getU10ImgsPathByDay(String year, String month, String day) {
         List<Imgs> imgsData = imgsMapper.findImgsInfoByDayType(year, month, day, "WEA_U10");
 
+        // 将 data 字段从 JSON 字符串转换为 List<String>
+        List<String> imgPaths = new ArrayList<>();
+        if (!imgsData.isEmpty()) {
+            String imgSrcData = imgsData.get(0).getData();
+            imgPaths = Arrays.asList(imgSrcData.split(","));
+        }
+
         Map<String, Object> result = new HashMap<>();
-        result.put("imgSrc", imgsData);
+
+        // 从 0 时开始，每次 + 6
+        int hour = 0;
+        List<String> titlesList = new ArrayList<>();
+        for (int i = 0; i < imgPaths.size(); i++)
+        {
+            titlesList.add(String.format("%s年%s月%s日%d时待定待定", year, month, day, hour));
+            hour+= 6;
+        }
+
+        List<String> testsList = new ArrayList<>();
+        for (int i = 0; i < imgPaths.size(); i++)
+        {
+            testsList.add("待定待定");
+        }
+
+        result.put("titles", titlesList);
+        result.put("imgSrc", imgPaths);
+        result.put("texts", testsList);
+
         return result;
     }
 
