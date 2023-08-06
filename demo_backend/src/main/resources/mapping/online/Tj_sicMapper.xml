@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.tongji.enso.mybatisdemo.mapper.online.Tj_sicMapper">
+
+    <select id="findByDate" resultType="Tj_sic">
+        select * from tj_sic where year=#{year} and month=#{month} and day=#{day} and var_model="SIC_Ice-BCNet"
+    </select>
+
+    <select id="findAll" resultType="Tj_sic">
+        select * from tj_sic
+    </select>
+
+    <select id="findErrorByMonth" resultType="Tj_sic">
+        select * from tj_sic where year=#{year} and month=#{month} and var_model like concat('%', #{year}, '%')
+    </select>
+
+    <select id="findErrorBoxByYearAndModel" resultType="Tj_sic">
+        select * from tj_sic where year=#{year} and var_model like '%DA%'
+    </select>
+
+</mapper>

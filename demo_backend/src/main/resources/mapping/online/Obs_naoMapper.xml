@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.tongji.enso.mybatisdemo.mapper.online.Obs_naoMapper">
+
+    <select id="findByMonthAndModel" resultType="Obs_nao">
+        select * from obs_nao where year=#{year} and month=#{month} and var_model="index_NAO_MCD"
+    </select>
+
+    <select id="findAllByModel" resultType="Obs_nao">
+        select * from obs_nao where var_model=#{var_model}
+    </select>
+
+</mapper>
