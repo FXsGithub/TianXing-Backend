@@ -13,7 +13,5 @@ public class Imgs {
     private String month;
     private String day;
     private String type;
-
     private String data;
-
 }

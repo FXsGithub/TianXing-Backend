@@ -2,7 +2,7 @@ package com.tongji.enso.mybatisdemo.controller;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
-import com.tongji.enso.mybatisdemo.entity.online.info_sic_latlon;
+import com.tongji.enso.mybatisdemo.entity.online.*;
 import com.tongji.enso.mybatisdemo.mapper.online.InfoMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;

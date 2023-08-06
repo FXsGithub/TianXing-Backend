@@ -1,6 +1,6 @@
 package com.tongji.enso.mybatisdemo.mapper.online;
 
-import com.tongji.enso.mybatisdemo.entity.online.info_sic_latlon;
+import com.tongji.enso.mybatisdemo.entity.online.*;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Select;
 
@@ -14,5 +14,6 @@ public interface InfoMapper {
      */
     @Select("SELECT * FROM info_sic_latlon")
     List<info_sic_latlon> findInfoSicLatlon();
+
 
 }

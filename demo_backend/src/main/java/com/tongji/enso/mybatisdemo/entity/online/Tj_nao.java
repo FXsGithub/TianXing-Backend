@@ -5,8 +5,8 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Data
-@AllArgsConstructor
-@NoArgsConstructor
+@AllArgsConstructor //全参构造函数
+@NoArgsConstructor //无参构造函数
 public class Tj_nao {
     private int id;
     private String year;

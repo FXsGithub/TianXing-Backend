@@ -53,7 +53,7 @@ public class ImgsController {
 
         result.put("titles", titlesList);
         result.put("imgSrc", imgPaths);
-        result.put("tests", testsList);
+        result.put("texts", testsList);
 
         return result;
     }
@@ -96,7 +96,7 @@ public class ImgsController {
 
         result.put("titles", titlesList);
         result.put("imgSrc", imgPaths);
-        result.put("tests", testsList);
+        result.put("texts", testsList);
 
         return result;
     }
@@ -177,6 +177,118 @@ public class ImgsController {
         result.put("imgSrc", imgPaths);
         result.put("texts", testsList);
 
+        return result;
+    }
+
+    /**
+     * 初始化：返回可选年、月、日范围 WEA_MSLP
+     * eg. http://localhost:8080/imgs/WEA_MSLP/getInitData
+     */
+    @RequestMapping("/WEA_MSLP/getInitData")
+    public Map<String, Object> getMSLPInitMonth()
+    {
+        List<Imgs> imgsData = imgsMapper.findImgsInfoByType("WEA_MSLP");
+
+        String earliestDate = null;
+        String latestDate = null;
+
+        for (Imgs img : imgsData) {
+            String date = img.getYear() + "-" + img.getMonth() + "-" + img.getDay();
+            if (earliestDate == null || date.compareTo(earliestDate) < 0) {
+                earliestDate = date;
+            }
+            if (latestDate == null || date.compareTo(latestDate) > 0) {
+                latestDate = date;
+            }
+        }
+
+        Map<String, Object> result = new HashMap<>();
+        result.put("earliestDate", earliestDate);
+        result.put("latestDate", latestDate);
+        return result;
+    }
+
+    /**
+     * 初始化：返回可选年、月、日范围 WEA_T2M
+     * http://localhost:8080/imgs/WEA_T2M/getInitData
+     */
+    @RequestMapping("/WEA_T2M/getInitData")
+    public Map<String, Object> getT2MInitMonth()
+    {
+        List<Imgs> imgsData = imgsMapper.findImgsInfoByType("WEA_T2M");
+
+        String earliestDate = null;
+        String latestDate = null;
+
+        for (Imgs img : imgsData) {
+            String date = img.getYear() + "-" + img.getMonth() + "-" + img.getDay();
+            if (earliestDate == null || date.compareTo(earliestDate) < 0) {
+                earliestDate = date;
+            }
+            if (latestDate == null || date.compareTo(latestDate) > 0) {
+                latestDate = date;
+            }
+        }
+
+        Map<String, Object> result = new HashMap<>();
+        result.put("earliestDate", earliestDate);
+        result.put("latestDate", latestDate);
+        return result;
+    }
+
+    /**
+     * 初始化：返回可选年、月、日范围 WEA_TP
+     * eg. http://localhost:8080/imgs/WEA_TP/getInitData
+     */
+    @RequestMapping("/WEA_TP/getInitData")
+    public Map<String, Object> getTPInitMonth()
+    {
+        List<Imgs> imgsData = imgsMapper.findImgsInfoByType("WEA_TP");
+
+        String earliestDate = null;
+        String latestDate = null;
+
+        for (Imgs img : imgsData) {
+            String date = img.getYear() + "-" + img.getMonth() + "-" + img.getDay();
+            if (earliestDate == null || date.compareTo(earliestDate) < 0) {
+                earliestDate = date;
+            }
+            if (latestDate == null || date.compareTo(latestDate) > 0) {
+                latestDate = date;
+            }
+        }
+
+        Map<String, Object> result = new HashMap<>();
+        result.put("earliestDate", earliestDate);
+        result.put("latestDate", latestDate);
+        return result;
+    }
+
+    /**
+     * 初始化：返回可选年、月、日范围 WEA_U10
+     * eg. http://localhost:8080/imgs/WEA_U10/getInitData
+     */
+    @RequestMapping("/WEA_U10/getInitData")
+    public Map<String, Object> getU10InitMonth()
+    {
+        List<Imgs> imgsData = imgsMapper.findImgsInfoByType("WEA_U10");
+
+        String earliestDate = null;
+        String latestDate = null;
+
+        for (Imgs img : imgsData) {
+            String date = img.getYear() + "-" + img.getMonth() + "-" + img.getDay();
+            if (earliestDate == null || date.compareTo(earliestDate) < 0) {
+                earliestDate = date;
+            }
+            if (latestDate == null || date.compareTo(latestDate) > 0) {
+                latestDate = date;
+            }
+        }
+
+        Map<String, Object> result = new HashMap<>();
+        result.put("earliestDate", earliestDate);
+        result.put("latestDate", latestDate);
         return result;
     }
 

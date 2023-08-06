@@ -1,6 +1,5 @@
 package com.tongji.enso.mybatisdemo.controller;
-
-import com.tongji.enso.mybatisdemo.mapper.online.EnsoMapper;
+import com.tongji.enso.mybatisdemo.mapper.online.*;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 

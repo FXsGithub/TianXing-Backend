@@ -2,7 +2,7 @@ package com.tongji.enso.mybatisdemo.controller;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.tongji.enso.mybatisdemo.entity.online.Info_sic_latlon;
+import com.tongji.enso.mybatisdemo.entity.online.info_sic_latlon;
 import com.tongji.enso.mybatisdemo.entity.online.Tj_sic;
 import com.tongji.enso.mybatisdemo.service.online.ImgsService;
 import com.tongji.enso.mybatisdemo.service.online.Info_sic_latlonService;
