@@ -46,6 +46,7 @@ public class Tj_naoController {
         // 将month从String转为int型整数
         int m = Integer.parseInt(month);
 
+        // 处理返回数据格式
         String end_year,end_month;
         if(m > 7){
             end_month = Integer.toString(m-7);
@@ -61,8 +62,8 @@ public class Tj_naoController {
         naoMap.put("title",title);
         naoMap.put("tooltip","{}");
         Map<String, Object> xAxis=new LinkedHashMap<>();
-        xAxis.put("type","'category'");
-        xAxis.put("name","'时间'");
+        xAxis.put("type","category");
+        xAxis.put("name","时间");
         List<String> month_data=new ArrayList<>();
         String[] chinese = {"一月","二月","三月","四月","五月","六月","七月","八月","九月","十月","十一月","十二月"};
         int temp = m;
@@ -79,19 +80,28 @@ public class Tj_naoController {
         yAxis.put("name","冬季NAOI");
         yAxis.put("nameLocation","center");
         Map<String,Object> nameTextStyle=new LinkedHashMap<>();
-        nameTextStyle.put("frontSize","16");
-        nameTextStyle.put("padding","[0,0,15,0]");
+        nameTextStyle.put("frontSize",16);
+        int[] padding=new int[4];
+        padding[0]=0;
+        padding[1]=0;
+        padding[2]=15;
+        padding[3]=0;
+        nameTextStyle.put("padding",padding);
         String p="nameTextStyle";
         yAxis.put(p,nameTextStyle);
-        yAxis.put("type","'value'");
+        yAxis.put("type","value");
         naoMap.put("yAxis",yAxis);
         Map<String,Object> legend=new LinkedHashMap<>();
-        legend.put("data","['观测值','NAO-MCR']");
+        String []legend_data= new String[2];
+        legend_data[0]="观测值";
+        legend_data[1]="NAO-MCR";
+        legend.put("data",legend_data);
         legend.put("orient","horizontal");
         legend.put("left","center");
         legend.put("bottom","5");
         naoMap.put("legend",legend);
 
+        // 处理预报数据和观测数据
         double []pre_data = new double[6];
         double []obs_data = new double[6];
         // data[]用于临时存放转化后的原始观测数据
