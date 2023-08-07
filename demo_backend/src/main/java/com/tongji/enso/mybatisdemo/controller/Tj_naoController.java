@@ -16,10 +16,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.List;
+import java.util.*;
 
 @RestController
 @RequestMapping("/nao")
@@ -39,17 +36,72 @@ public class Tj_naoController {
      */
     @GetMapping("/predictionResult/nao")
     @ApiOperation(notes = "查询月份开始六个月的NAO指数预测和观测结果以及文本描述", value = "根据月份查询NAO指数预测和观测结果")
-    public Map<String,Object> findNAOPredictionByMonthAndModel(@RequestParam String year, @RequestParam String month){
+    public Map<String,Object> findNAOPredictionByMonth(@RequestParam String year, @RequestParam String month){
 
         Tj_nao preResult = tj_naoservice.findPredictionByMonthAndModel(year,month);
         // 数据库中观测数据按年存储，所以查询月份都是1，查出来的是12个月份的数据
         Obs_nao obsResult = obs_naoservice.findObservationByMonthAndModel(year,"1");
 
+        Map<String,Object> naoMap = new LinkedHashMap<>();
         // 将month从String转为int型整数
         int m = Integer.parseInt(month);
 
-        Map<String,Object> naoMap = new HashMap<>();
+        // 处理返回数据格式
+        String end_year,end_month;
+        if(m > 7){
+            end_month = Integer.toString(m-7);
+            end_year=Integer.toString(Integer.parseInt(year)+1);
+        }
+        else{
+            end_year=year;
+            end_month=Integer.toString(m+5);
+        }
+        Map<String, Object> title=new LinkedHashMap<>();
+        title.put("text",String.format("%s年%s月~%s年%s月 NAOI指数预测结果", year, month, end_year, end_month));
+        title.put("left","center");
+        naoMap.put("title",title);
+        naoMap.put("tooltip","{}");
+        Map<String, Object> xAxis=new LinkedHashMap<>();
+        xAxis.put("type","category");
+        xAxis.put("name","时间");
+        List<String> month_data=new ArrayList<>();
+        String[] chinese = {"一月","二月","三月","四月","五月","六月","七月","八月","九月","十月","十一月","十二月"};
+        int temp = m;
+        for(int i=0; i<6; i++) {
+            month_data.add(chinese[temp - 1]);
+            temp++;
+            if(temp > 12){
+                temp = temp - 12;
+            }
+        }
+        xAxis.put("data",month_data);
+        naoMap.put("xAxis",xAxis);
+        Map<String,Object> yAxis=new LinkedHashMap<>();
+        yAxis.put("name","冬季NAOI");
+        yAxis.put("nameLocation","center");
+        Map<String,Object> nameTextStyle=new LinkedHashMap<>();
+        nameTextStyle.put("frontSize",16);
+        int[] padding=new int[4];
+        padding[0]=0;
+        padding[1]=0;
+        padding[2]=15;
+        padding[3]=0;
+        nameTextStyle.put("padding",padding);
+        String p="nameTextStyle";
+        yAxis.put(p,nameTextStyle);
+        yAxis.put("type","value");
+        naoMap.put("yAxis",yAxis);
+        Map<String,Object> legend=new LinkedHashMap<>();
+        String []legend_data= new String[2];
+        legend_data[0]="观测值";
+        legend_data[1]="NAO-MCR";
+        legend.put("data",legend_data);
+        legend.put("orient","horizontal");
+        legend.put("left","center");
+        legend.put("bottom","5");
+        naoMap.put("legend",legend);
 
+        // 处理预报数据和观测数据
         double []pre_data = new double[6];
         double []obs_data = new double[6];
         // data[]用于临时存放转化后的原始观测数据
@@ -78,7 +130,6 @@ public class Tj_naoController {
                     obs_data[i] = data[m-1];
                     m++;
                 }
-
                 // 将年份从String转为int型整数，+1后再转回String型用于查询下一年的数据
                 int y =Integer.parseInt(year);
                 y++;
@@ -105,11 +156,38 @@ public class Tj_naoController {
             e.printStackTrace();
         }
 
-        naoMap.put("predictionData", pre_data);
-        naoMap.put("observationData", obs_data);
-
-        return naoMap;
+        List<Map<String,Object>>series = new ArrayList<>();
+        Map<String,Object> obs_Data=new LinkedHashMap<>();
+        Map<String,Object> pre_Data=new LinkedHashMap<>();
+        obs_Data.put("name","观测值");
+        obs_Data.put("type","line");
+        obs_Data.put("data",obs_data);
+        series.add(obs_Data);
+        pre_Data.put("name","NAO-MCR");
+        pre_Data.put("type","line");
+        pre_Data.put("data",pre_data);
+        series.add(pre_Data);
+        naoMap.put("series",series);
+        Map<String,Object> result=new LinkedHashMap<>();
+        result.put("option",naoMap);
+        result.put("description","描述暂无");
+        return result;
     }
+
+    /**
+     * 根据年月返回预测结果误差分布图地址
+     * @param: year, month;
+     * @return: List<String>.
+     */
+    @GetMapping("/predictionExamination/nao")
+    @ApiOperation(notes = "根据年月返回预测结果误差分布图地址", value = "根据年月返回预测结果误差分布图地址")
+    public List<String>findNAOCORRByMonth(@RequestParam String year, @RequestParam String month){
+        List<String> naolist=new ArrayList<>();
+        String data=imgsservice.findNAOCORRImgByMonth(year,month);
+        naolist.add(data);
+        return naolist;
+    }
+
 
     /**
      * 根据年月，返回该时模型起报的6个月格点数据的模块图
