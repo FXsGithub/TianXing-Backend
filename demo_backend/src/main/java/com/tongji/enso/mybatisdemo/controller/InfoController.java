@@ -54,5 +54,27 @@ public class InfoController {
         return result;
     }
 
+    /**
+     * 测试用
+     */
+    @GetMapping("/getTest")
+    @ApiOperation(value = "测试用", notes = "测试用")
+    public Map<String, List<Double>> getTest() {
+
+        // 转换为一维列表
+        List<Double> latList = new ArrayList<>();
+        List<Double> lonList = new ArrayList<>();
+
+        latList.add(2.0);
+        latList.add(3.0);
+
+        Map<String,List<Double>> result = new HashMap<>();
+
+        result.put("lat", latList);
+        result.put("lon", lonList);
+
+        return result;
+    }
+
 }
 
