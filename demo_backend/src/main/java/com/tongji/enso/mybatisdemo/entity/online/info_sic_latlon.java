@@ -5,10 +5,10 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Data
-@AllArgsConstructor //全参构造函数
-@NoArgsConstructor //无参构造函数
-public class info_sic_latlon {
+@AllArgsConstructor
+@NoArgsConstructor
+public class Info_sic_latlon {
     private int id;
-    private String lat;
-    private String lon;
+    private String lat;//纬度
+    private String lon;//经度
 }
