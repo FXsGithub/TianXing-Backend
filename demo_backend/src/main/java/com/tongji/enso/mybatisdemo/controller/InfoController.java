@@ -58,7 +58,7 @@ public class InfoController {
      * 测试用
      */
     @GetMapping("/getTest")
-    @ApiOperation(value = "测试用", notes = "测试用")
+    @ApiOperation(value = "测试用接口", notes = "测试用接口")
     public Map<String, List<Double>> getTest() {
 
         // 转换为一维列表
