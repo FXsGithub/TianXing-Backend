@@ -28,7 +28,7 @@ public class InfoController {
     @GetMapping("/getAllLatLon")
     @ApiOperation(value = "获取全部经纬度数据", notes = "获取全部经纬度数据")
     public Map<String, List<Double>> getAllLatLon() {
-        List<info_sic_latlon> latLonDataList = latLonMapper.findInfoSicLatlon();
+        List<Info_sic_latlon> latLonDataList = latLonMapper.findInfoSicLatlon();
 
         Gson gson = new Gson();
         List<List<Double>> latitudes = gson.fromJson(latLonDataList.get(0).getLat(), new TypeToken<List<List<Double>>>() {}.getType());
