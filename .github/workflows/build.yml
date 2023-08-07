@@ -22,34 +22,23 @@ jobs:
 
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
-      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-      - uses: actions/checkout@v3
 
-      # Runs a single command using the runners shell
-      - name: Set up JDK
-        uses: actions/setup-java@v2
-        with:
-          distribution: 'adopt'
-          java-version: 11
-
-      - name: Build with Maven
+      - name: Generate random number with Python
         run: |
-          cd demo_backend
-          chmod +x ./mvnw
-          ./mvnw install
+          echo "RANDOM_NUMBER=$(python -c 'import random; print(random.randint(0, 10000000))')" >> $GITHUB_ENV
+          
         
       # Runs a set of commands using the runners shell
       - name: Deploy to Server
         env:
           SERVER_KEY: ${{ secrets.SERVER_KEY }}
         run: |
-          cd demo_backend
-          ls -al
+          echo "GITHUB_ENV:"
+          echo $RANDOM_NUMBER
           echo "$SERVER_KEY" > deploy_key
           chmod 600 deploy_key
-          scp -o StrictHostKeyChecking=no -i deploy_key target/*.jar root@124.221.108.4:/web/
-          ssh -o StrictHostKeyChecking=no -i deploy_key root@124.221.108.4 "/home/ubuntu/cyx/jdk-11.0.18/bin/java --version"
-          ssh -o StrictHostKeyChecking=no -i deploy_key root@124.221.108.4 "pkill -f 'java -jar *' || true"
-          ssh -o StrictHostKeyChecking=no -i deploy_key root@124.221.108.4 "cd /web && /usr/bin/tmux new-session -d -s mysession '/home/ubuntu/cyx/jdk-11.0.18/bin/java -jar MybatisDemo-0.0.1-SNAPSHOT.jar >> web.log 2>&1'"
-          ssh -o StrictHostKeyChecking=no -i deploy_key root@124.221.108.4 "echo success"
+          ssh -o StrictHostKeyChecking=no -i deploy_key root@124.221.108.4 "cd /web && rm -rf TianXing-Backend || true"
+          ssh -o StrictHostKeyChecking=no -i deploy_key root@124.221.108.4 "cd /web && git clone https://ghproxy.com/https://github.com/Ultrasty/TianXing-Backend/"
+          ssh -o StrictHostKeyChecking=no -i deploy_key root@124.221.108.4 "cd /web && /usr/bin/tmux new-session -d -s $RANDOM_NUMBER 'bash -l -c ./build.sh'"
+          
           rm -f deploy_key
