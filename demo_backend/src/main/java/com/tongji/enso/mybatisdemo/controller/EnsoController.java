@@ -5,6 +5,7 @@ import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import java.util.List;
 
+import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -563,29 +564,6 @@ public class EnsoController {
     }
 
     /**
-     * 返回数据列表的箱型图数据（最小值、Q1、中位数、Q3、最大值）
-     *
-     * @param data
-     * @return
-     */
-    private Map<String, Double> getBoxPlotData(List<Double> data) {
-        double min = Collections.min(data);
-        double max = Collections.max(data);
-        double median = getMedian(data);
-        double q1 = getMedian(data.stream().filter(i -> i < median).collect(Collectors.toList()));
-        double q3 = getMedian(data.stream().filter(i -> i > median).collect(Collectors.toList()));
-
-        Map<String, Double> boxPlotData = new HashMap<>();
-        boxPlotData.put("min", min);
-        boxPlotData.put("q1", q1);
-        boxPlotData.put("median", median);
-        boxPlotData.put("q3", q3);
-        boxPlotData.put("max", max);
-
-        return boxPlotData;
-    }
-
-    /**
      * 返回列表数据的中位数
      *
      * @param data
@@ -593,6 +571,8 @@ public class EnsoController {
      */
     private double getMedian(List<Double> data) {
         int size = data.size();
+        // 打印 size
+        System.out.println("size: " + size);
         if (size % 2 == 0) {
             return (data.get(size / 2 - 1) + data.get(size / 2)) / 2.0;
         } else {
@@ -600,127 +580,223 @@ public class EnsoController {
         }
     }
 
+    private double calculateQuartile(List<Double> sortedData, int quartileNumber) {
+        int dataSize = sortedData.size();
+        int index = (int) Math.ceil(quartileNumber * 0.25 * (dataSize + 1)) - 1;
+        if (dataSize % 4 == 0) {
+            return (sortedData.get(index) + sortedData.get(index + 1)) / 2.0;
+        } else {
+            return sortedData.get(index);
+        }
+    }
+
     /**
-     * 预测模型 nino34_mean 预测误差箱形图绘制需求数据：最大值、最小值、中位数、上四分位数（Q1）、下四分位数（Q3）五个统计量
+     * 计算数据：最小值、下四分位数(Q1)、中位数、上四分位数(Q3)、最大值五个统计量
+     * 说明："- 其中[0.1, 0.2, 0.3, 0.4, 0.5] 顺序为：最小值、下四分位数、中位数、上四分位数、最大值
+     * - 这里的data必须为[[ ]] （两层中括号，因为不同月份的箱用不同颜色区分）"
+     *
+     * 由小到大排列并分成四等份：Q1 Q2 Q3
+     */
+    private List<List<Double>> computeBoxPlotData(List<Double> data) {
+        // 对 data 排序
+        Collections.sort(data);
+
+        double min = Collections.min(data);
+        double max = Collections.max(data);
+        double median = getMedian(data);
+
+        double q1 = calculateQuartile(data, 1); // 计算下四分位数（Q1）
+        double q3 = calculateQuartile(data, 3); // 计算上四分位数（Q3）
+
+        List<List<Double>> result = new ArrayList<>();
+        result.add(Arrays.asList(min, q1, median, q3, max));
+
+        return result;
+    }
+
+    /**
+     * 获取指定 year、month 的观测数据
+     */
+    @GetMapping("/predictionExamination/obsData")
+    public List<Double> getObsData (@RequestParam("year") String year, @RequestParam("month") String month) {
+        Gson gson = new Gson();
+        Type listType = new TypeToken<List<Double>>() {
+        }.getType();
+
+        // 使用给定年份查询所有数据
+        String currentYearResult = ensoMapper.findObsEnsoByYear(year);
+        List<Double> currentYearData = gson.fromJson(currentYearResult, listType);
+
+        List<Double> current18MonthsData;  // 用来存放从本月起（包括本月）未来18个月的数据，直到真实数据用完为止
+
+        current18MonthsData = currentYearData.subList(Integer.parseInt(month) - 1, currentYearData.size());
+
+        if (currentYearData.size() == 12)  // 需要考虑下一年的真实数据
+        {
+            // 查询下一年的数据
+            String futureYear = String.valueOf(Integer.parseInt(year) + 1);
+            String futureYearResult = ensoMapper.findObsEnsoByYear(futureYear);
+
+            if (futureYearResult != null) {
+                List<Double> futureYearData = gson.fromJson(futureYearResult, listType);
+                current18MonthsData.addAll(futureYearData);
+                if (futureYearData.size() == 12 && current18MonthsData.size() < 18) {
+                    // 查询下一年的下一年的数据
+                    String futureFutureYear = String.valueOf(Integer.parseInt(year) + 2);
+                    String futureFutureYearResult = ensoMapper.findObsEnsoByYear(futureFutureYear);
+                    if (futureFutureYearResult != null) {
+                        List<Double> futureFutureYearData = gson.fromJson(futureFutureYearResult, listType);
+                        current18MonthsData.addAll(futureFutureYearData);
+                    }
+                }
+            }
+        }
+
+        if (current18MonthsData.size() > 18)  // 超过18个月的数据，只取前18个月
+            current18MonthsData = current18MonthsData.subList(0, 18);
+
+        return current18MonthsData;
+    }
+
+    /**
+     * 获取指定 year、month 的预测数据 平均
+     */
+    @GetMapping("/predictionExamination/predictionData")
+    public List<Double> getPreData(@RequestParam("year") String year, @RequestParam("month") String month) {
+        Gson gson = new Gson();
+        Type listType = new TypeToken<List<Double>>() {
+        }.getType();
+        // 获取预测数据
+        String predictionMeanResult = ensoMapper.findEachPredictionsResultByMonthType(year, month, "nino34_mean");
+        List<Double> predictionMeanList = gson.fromJson(predictionMeanResult, listType);
+
+        return predictionMeanList;
+    }
+
+    /**
+     * 计算 year month 之前要查询的 年月 数据
+     */
+    @GetMapping("/utils/monthsToQuery")
+    @ApiOperation(value = "计算 year month 之前要查询的 年月 数据")
+    public List<String> calculateMonthsToQuery(int year, int month, int monthsToGoBack) {
+        List<String> monthsToQuery = new ArrayList<>();
+        for (int i = monthsToGoBack; i >= 1; i--) {
+            int queryMonth = (month - i + 12) % 12 + 1; // 加1来保证月份范围从1到12
+            int queryYear = year - ((month - i) < 0 ? 1 : 0);
+            String formattedMonth = String.format("%04d-%02d", queryYear, queryMonth);
+            monthsToQuery.add(formattedMonth);
+        }
+        return monthsToQuery;
+    }
+
+
+    /**
+     * 预测模型 nino34_mean 预测误差箱形图绘制
      *
      * @param year
      * @param month
      * @return
      */
-//    @GetMapping("/predictionExamination/errorBox")
-//    public Map<String, Map<String, Double>> getErrorBox(@RequestParam("year") String year, @RequestParam("month") String month) {
-//        Gson gson = new Gson();
-//        Type listType = new TypeToken<List<Double>>() {
-//        }.getType();
-//        Map<String, Object> resultmap;
-//        Map<String, Object> errormap;
-//
-//        //map
-//        Map<String, Object> resultMap = new HashMap<>();
-//        Map<String, Object> title = new HashMap<>();
-//        Map<String, Object> tooltip = new HashMap<>();
-//        Map<String, Object> tooltip_axisPointer = new HashMap<>();
-//        Map<String, Object> legend = new HashMap<>();
-//        Map<String, Object> legend_tooltip = new HashMap<>();
-//        Map<String, Object> grid = new HashMap<>();
-//        Map<String, Object> toolbox = new HashMap<>();
-//        Map<String, Object> toolbox_feature = new HashMap<>();
-//        Map<String, Object> toolbox_feature_saveAsImage = new HashMap<>();
-//        Map<String, Object> xAxis = new HashMap<>();
-//        List<Object> xAxis_data = new ArrayList<>();
-//        Map<String, Object> xAxis_axisLabel = new HashMap<>();
-//        Map<String, Object> yAxis = new HashMap<>();
-//        List<Map<String, Object>> series= new ArrayList<>();
-//        Map<String, Object> series_title = new HashMap<>();
-//        Map<String, Object> series_title_lineStyle = new HashMap<>();
-//        Map<String, Object> series_title_itemStyle = new HashMap<>();
-//
-//        String title_text="误差分析箱型图";
-//        String title_left="center";
-//        String tooltip_axisPointer_type="shadow";
-//        String tooltip_trigger="item";
-//        String legend_x="center";
-//        String legend_y="bottom";
-//        String legend_tooltip_show="true";
-//        String grid_left="3%";
-//        String grid_right="4%";
-//        String grid_bottom="25%";
-//        String grid_containLabel="true";
-//        String xAxis_type="category";
-//        String xAxis_boundaryGap="false";
-//        xAxis_data.add("Feb-22");
-//        xAxis_data.add("Mar-22");
-//        xAxis_data.add("Apr-22");
-//        xAxis_data.add("Jun-22");
-//        xAxis_data.add("Jul-22");
-//        xAxis_data.add("Aug-22");
-//        xAxis_data.add("Sep-22");
-//        xAxis_data.add("Oct-22");
-//        xAxis_data.add("Nov-22");
-//        xAxis_data.add("Dec-22");
-//        xAxis_data.add("Jan-22");
-//        int xAxis_interval=2;
-//        String yAxis_type="value";
-//        String yAxis_name="Niño 3.4 Index";
-//        String series_title_name="气候中心Nino3.4指数记录";
-//        String series_title_type="line";
-//        String series_title_lineStyle_color="black";
-//        int series_title_lineStyle_width=3;
-//        String series_title_itemStyle_color="black";
-//
-//        title.put("text", title_text);
-//        title.put("left", title_left);
-//        tooltip.put("trigger", tooltip_trigger);
-//        legend.put("x", legend_x);
-//        legend.put("y", legend_y);
-//        legend.put("tooltip", legend_tooltip);
-//        legend_tooltip.put("show",legend_tooltip_show);
-//        grid.put("left",grid_left);
-//        grid.put("right",grid_right);
-//        grid.put("bottom",grid_bottom);
-//        tooltip.put("trigger",tooltip_trigger);
-//        tooltip.put("axisPointer",tooltip_axisPointer);
-//        tooltip_axisPointer.put("type",tooltip_axisPointer_type);
-//        toolbox.put("feature",toolbox_feature);
-//        toolbox_feature.put("saveAsImage",toolbox_feature_saveAsImage);
-//        xAxis.put("type",xAxis_type);
-//        xAxis.put("boundaryGap",xAxis_boundaryGap);
-//        xAxis.put("data",xAxis_data);
-//        xAxis.put("axisLabel",xAxis_axisLabel);
-//        xAxis_axisLabel.put("interval",xAxis_interval);
-//        yAxis.put("type",yAxis_type);
-//        yAxis.put("name",yAxis_name);
-//        series_title.put("name",series_title_name);
-//        series_title.put("type",series_title_type);
-//        series_title.put("lineStyle",series_title_lineStyle);
-//        series_title.put("itemStyle",series_title_itemStyle);
-//        series_title_lineStyle.put("color",series_title_lineStyle_color);
-//        series_title_lineStyle.put("width",series_title_lineStyle_width);
-//        series_title_itemStyle.put("color",series_title_itemStyle_color);
-//        series_title.put("data",obs_data);
-//        series.add(series_title);
-//        errormap.put("option",resultmap);
-//        // 获取观察数据
-//        Map<String, List<Object>> monthlyComparisonData = getMonthlyComparison(year, month);
-//        List<Object> obs = monthlyComparisonData.get("obs");
-//        List<Double> obsData = (List<Double>)(List)obs;
-//
-//        // 获取预测数据
-//        String predictionMeanResult = ensoMapper.findEachPredictionsResultByMonthType(year, month, "nino34_mean");
-//        List<Double> predictionMeanList = gson.fromJson(predictionMeanResult, listType);
-//        List<Double> predictionMeanData = predictionMeanList.subList(0, obsData.size());
-//
-//        List<Double> errorList = new ArrayList<>();
-//        for (int i = 0; i < obsData.size(); i++) {
-//            double error = Math.abs(obsData.get(i) - predictionMeanData.get(i));
-//            errorList.add(error);
-//        }
-//        Map<String, Double> boxPlotData = getBoxPlotData(errorList);
-//
-//        Map<String, Map<String, Double>> errorBoxMap = new HashMap<>();
-//        errorBoxMap.put("nino34_mean", boxPlotData);
-//        return errorBoxMap;
-//    }
+    @GetMapping("/predictionExamination/errorBox")
+    @ApiOperation(value = "误差计算：预测 - 观测", notes = "数据库数据有限，目前只能通过 year=2023 month=2 来访问")
+    public Map<String, Object> getErrorBox(@RequestParam("year") String year, @RequestParam("month") String month) {
+        Map<String, Object> result = new HashMap<>();
+
+        Map<String, Object> option = new HashMap<>();
+        List<Map<String, Object>> titleList = new ArrayList<>();
+        Map<String, Object> title = new HashMap<>();
+        title.put("text", "误差分析箱型图");
+        title.put("left", "center");
+        titleList.add(title);
+        option.put("title", titleList);
+
+        Map<String, Object> legend = new HashMap<>();
+        legend.put("x", "center");
+        legend.put("y", "bottom");
+        Map<String, Object> tooltipLegend = new HashMap<>();
+        tooltipLegend.put("show", true);
+        legend.put("tooltip", tooltipLegend);
+        option.put("legend", legend);
+
+        Map<String, Object> tooltip = new HashMap<>();
+        tooltip.put("trigger", "item");
+        Map<String, Object> axisPointer = new HashMap<>();
+        axisPointer.put("type", "shadow");
+        tooltip.put("axisPointer", axisPointer);
+        option.put("tooltip", tooltip);
+
+        Map<String, Object> grid = new HashMap<>();
+        grid.put("left", "10%");
+        grid.put("right", "10%");
+        grid.put("bottom", "25%");
+        option.put("grid", grid);
+
+        Map<String, Object> xAxis = new HashMap<>();
+        xAxis.put("type", "category");
+        xAxis.put("boundaryGap", true);
+        xAxis.put("show", false);
+        Map<String, Object> splitAreaX = new HashMap<>();
+        splitAreaX.put("show", false);
+        xAxis.put("splitArea", splitAreaX);
+        Map<String, Object> splitLineX = new HashMap<>();
+        splitLineX.put("show", false);
+        xAxis.put("splitLine", splitLineX);
+        option.put("xAxis", xAxis);
+
+        Map<String, Object> yAxis = new HashMap<>();
+        yAxis.put("type", "value");
+        yAxis.put("name", "Niño 3.4 Index");
+        Map<String, Object> splitAreaY = new HashMap<>();
+        splitAreaY.put("show", true);
+        yAxis.put("splitArea", splitAreaY);
+        List<Double> yAxisData = Arrays.asList(0.0, 0.1, 0.2, 0.3, 0.4, 0.5);
+        yAxis.put("data", yAxisData);
+        option.put("yAxis", yAxis);
+
+        List<Map<String, Object>> seriesList = new ArrayList<>();
+        List<String> monthsToQuery = calculateMonthsToQuery(Integer.parseInt(year), Integer.parseInt(month), 12);
+        for (String queryDate : monthsToQuery) {  // 从当前月份往前推12个月 （series 中包括12条数据）
+            // 打印 queryDate
+            // System.out.println(queryDate);
+            String queryYear = queryDate.substring(0, 4);
+            String queryMonth = queryDate.substring(5);
+            // 如果第一位是0，去掉
+            if (queryMonth.startsWith("0")) {
+                queryMonth = queryMonth.substring(1); // 去掉开头的零
+            }
+            // System.out.println("year: " + queryYear + ", month: " + queryMonth);
+
+            List<Double> preData = getPreData(queryYear, queryMonth);
+            List<Double> obsData = getObsData(queryYear, queryMonth);
+
+            // 两个数组可能不一样长，取短的
+            int length = Math.min(preData.size(), obsData.size());
+            preData = preData.subList(0, length);
+            obsData = obsData.subList(0, length);
+            // 计算误差
+            List<Double> errorData = new ArrayList<>();
+            for (int i = 0; i < length; i++) {
+                errorData.add(Math.abs(preData.get(i) - obsData.get(i)));
+            }
+            System.out.println(errorData);
+            // 计算箱型图数据
+            List<List<Double>> boxPlotData = computeBoxPlotData(errorData);
+
+            Map<String, Object> seriesItem = new HashMap<>();
+            seriesItem.put("type", "boxplot");
+            String name = queryYear + "年" + queryMonth + "月起报预报误差";
+            seriesItem.put("name", name);
+            seriesItem.put("data", boxPlotData);
+            seriesList.add(seriesItem);
+        }
+
+        option.put("series", seriesList);
+
+        result.put("option", option);
+        result.put("text", "这里是说明文字");
+
+        return result;
+    }
 
     /**
      * 根据提供的观测值和预测值计算皮尔逊相关系数
@@ -744,31 +820,85 @@ public class EnsoController {
      * @param month
      * @return
      */
-//    @GetMapping("/predictionExamination/errorCorr")
-//    public Map<String, Double> getErrorCorr(@RequestParam("year") String year, @RequestParam("month") String month) {
-//        // 创建 Gson 对象和类型对象以解析 JSON
-//        Gson gson = new Gson();
-//        Type listType = new TypeToken<List<Double>>() {
-//        }.getType();
-//
-//        // 获取观察数据
-//        Map<String, List<Object>> monthlyComparisonData = getMonthlyComparison(year, month);
-//        List<Object> obs = monthlyComparisonData.get("obs");
-//        List<Double> obsData = (List<Double>)(List)obs;
-//
-//        // 获取预测数据
-//        String predictionMeanResult = ensoMapper.findEachPredictionsResultByMonthType(year, month, "nino34_mean");
-//        List<Double> predictionMeanList = gson.fromJson(predictionMeanResult, listType);
-//        List<Double> predictionMeanData = predictionMeanList.subList(0, obsData.size());
-//
-//        // 计算皮尔逊相关系数
-//        double correlation = getPearsonCorrelation(obsData, predictionMeanData);
-//
-//        // 创建一个哈希映射以存储皮尔逊相关系数
-//        Map<String, Double> correlationMap = new HashMap<>();
-//        correlationMap.put("nino34_mean", correlation);
-//
-//        return correlationMap;
-//    }
-//
+    @GetMapping("/predictionExamination/errorCorr")
+    @ApiOperation(value = "皮尔逊相关系数")
+    public Map<String, Object> getErrorCorr(@RequestParam("year") String year, @RequestParam("month") String month) {
+        Map<String, Object> result = new HashMap<>();
+
+        Map<String, Object> option = new HashMap<>();
+        List<Map<String, Object>> title = new ArrayList<>();
+        Map<String, Object> titleElement = new HashMap<>();
+        titleElement.put("text", "预测结果逐月相关性分析");
+        titleElement.put("left", "center");
+        title.add(titleElement);
+        option.put("title", title);
+
+        Map<String, Object> xAxis = new HashMap<>();
+        xAxis.put("type", "category");
+        List<String> xAxisData = new ArrayList<>();
+
+        List<String> monthsToQuery = calculateMonthsToQuery(Integer.parseInt(year), Integer.parseInt(month), 12);
+        for (String queryDate : monthsToQuery)
+        {
+            String queryYear = queryDate.substring(0, 4);
+            String queryMonth = queryDate.substring(5);
+            // 如果第一位是0，去掉
+            if (queryMonth.startsWith("0")) {
+                queryMonth = queryMonth.substring(1); // 去掉开头的零
+            }
+
+            String name = queryYear + "年" + queryMonth + "月起报结果";
+            xAxisData.add(name);
+        }
+        xAxis.put("data", xAxisData);
+        Map<String, Object> axisLabel = new HashMap<>();
+        axisLabel.put("show", true);
+        axisLabel.put("rotate", 30);
+        xAxis.put("axisLabel", axisLabel);
+        option.put("xAxis", xAxis);
+
+        Map<String, Object> yAxis = new HashMap<>();
+        yAxis.put("type", "value");
+        yAxis.put("name", "Niño 3.4 Index");
+        yAxis.put("data", Arrays.asList(0, 0.2, 0.4, 0.6, 0.8, 1));
+        option.put("yAxis", yAxis);
+
+        List<Map<String, Object>> series = new ArrayList<>();
+        Map<String, Object> seriesElement = new HashMap<>();
+
+        seriesElement.put("type", "line");
+        List<Double> seriesData = new ArrayList<>();
+        // 计算皮尔逊相关系数
+        for (String queryDate : monthsToQuery)
+        {
+            String queryYear = queryDate.substring(0, 4);
+            String queryMonth = queryDate.substring(5);
+            // 如果第一位是0，去掉
+            if (queryMonth.startsWith("0")) {
+                queryMonth = queryMonth.substring(1); // 去掉开头的零
+            }
+            // System.out.println("year: " + queryYear + ", month: " + queryMonth);
+
+            List<Double> preData = getPreData(queryYear, queryMonth);
+            List<Double> obsData = getObsData(queryYear, queryMonth);
+
+            // 两个数组可能不一样长，取短的
+            int length = Math.min(preData.size(), obsData.size());
+            preData = preData.subList(0, length);
+            obsData = obsData.subList(0, length);
+            System.out.println(preData);
+            System.out.println(obsData);
+            double correlation = getPearsonCorrelation(preData, obsData);
+            seriesData.add(correlation);
+        }
+        seriesElement.put("data", seriesData);
+        series.add(seriesElement);
+        option.put("series", series);
+
+        result.put("option", option);
+        result.put("text", "这里是说明文字");
+
+        return result;
+    }
+
 }
