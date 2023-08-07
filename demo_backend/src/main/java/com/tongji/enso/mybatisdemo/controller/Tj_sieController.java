@@ -15,6 +15,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.*;
 
 @RestController
 @RequestMapping("/seaice")
@@ -36,26 +37,86 @@ public class Tj_sieController {
      */
     @GetMapping("/predictionResult/SIE")
     @ApiOperation(notes = "查询月份开始起报之后12个月的SIE指数以及文本描述", value = "根据月份查询SIE指数预测结果")
-    public List<Tj_sie> findByMonth(@RequestParam String year, @RequestParam String month){
+    public HashMap<String,Object> findByMonth(@RequestParam String year, @RequestParam String month){
 
         // 要返回的对象列表
+        HashMap<String, Object> return_hashmap = new HashMap<String, Object>();
+
+        HashMap<String, Object> option = new  HashMap<String, Object>();
+        return_hashmap.put("option",option);
+
+        List<HashMap<String,Object>> avaliableList = new ArrayList<>();
+        avaliableList.add(new HashMap<>());
+        avaliableList.get(0).put("year",2023);
+        avaliableList.get(0).put("month",1);
+        return_hashmap.put("avaliableList",avaliableList);
+
+        HashMap<String, Object> title = new  HashMap<String, Object>();
+        String next_year=Integer.parseInt(year)+1+"";
+        title.put("text",year+"年"+month+"月~"+next_year+"年"+month+"月SIE指数预测结果");
+        title.put("left","center");
+        option.put("title",title);
+
+        HashMap<String, Object> tooltip = new  HashMap<String, Object>();
+        option.put("tooltip",tooltip);
+
+        HashMap<String, Object> xAxis = new  HashMap<String, Object>();
+        xAxis.put("type","category");
+        xAxis.put("name","时间");
+        String[] xAxis_data={"一月", "二月", "三月", "四月", "五月","六月", "七月", "八月", "九月", "十月", "十一月", "十二月"};
+        xAxis.put("data",xAxis_data);
+        option.put("xAxis",xAxis);
+
+        HashMap<String, Object> yAxis = new  HashMap<String, Object>();
+        yAxis.put("type","value");
+        option.put("yAxis",yAxis);
+
+        HashMap<String, Object> legend = new  HashMap<String, Object>();
+        String[] legend_data={"prediction", "mean", "upper", "lower"};
+        legend.put("data",legend_data);
+        legend.put("orient","horizontal");
+        legend.put("left","center");
+        legend.put("bottom","5");
+        option.put("legend",legend);
+
+        // 查找的对象列表
         List<Tj_sie> sieList = tj_sieService.findSIEByMonth(year, month);
+        List<HashMap<String, Object>> series= new ArrayList<>();
+        // 使用循环添加指定数量的空 HashMap 到列表中
+        for (int i = 0; i < sieList.size(); i++) {
+            series.add(new HashMap<>());
+        }
         // 使用ObjectMapper进行JSON数据解析
         ObjectMapper objectMapper = new ObjectMapper();
         // 遍历返回结果中的每个Tj_sie对象，对其data字段进行解析，并替换为一维数组
+        int series_num=0;
         for (Tj_sie sie : sieList) {
             String jsonData = sie.getData(); // 获取JSON数据的字符串形式
+            if(sie.getVar_model().equals("prediction_IceTFT"))
+                series.get(series_num).put("name","prediction");
+            if(sie.getVar_model().equals("mean_IceTFT"))
+                series.get(series_num).put("name","mean");
+            if(sie.getVar_model().equals("upper_IceTFT"))
+                series.get(series_num).put("name","upper");
+            if(sie.getVar_model().equals("lower_IceTFT"))
+                series.get(series_num).put("name","lower");
+            series.get(series_num).put("type","line");
             try {
                 // 将JSON数据转换为一维double数组
                 double[] dataArray = objectMapper.readValue(jsonData, double[].class);
                 // 将解析后的一维数组设置到Tj_sie对象的data字段中
                 sie.setTrans_data(dataArray);
+                series.get(series_num).put("data",dataArray);
             } catch (Exception e) {
                 e.printStackTrace();
             }
+            series_num++;
         }
 
-        return sieList;
+        option.put("series",series);
+        return_hashmap.put("option",option);
+        return_hashmap.put("description","2023年9月SIE极小值预测为4.4133，相较于2022年观测偏低，2023年海冰范围预计将比2022年整体偏少。");
+        return return_hashmap;
     }
 
     /**
@@ -122,7 +183,7 @@ public class Tj_sieController {
         HashMap<String, Object> return_hashmap = new HashMap<String, Object>();
         return_hashmap.put("yearList",yearList);
         return_hashmap.put("monthList",monthList);
-
+        // 要返回的对象列表
         List<Tj_sie> sieList = tj_sieService.findSIEByMonth("2023", "1");
         // 使用ObjectMapper进行JSON数据解析
         ObjectMapper objectMapper = new ObjectMapper();
