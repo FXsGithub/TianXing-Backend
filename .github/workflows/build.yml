@@ -1,0 +1,54 @@
+# This is a basic workflow to help you get started with Actions
+
+name: CI
+
+# Controls when the workflow will run
+on:
+  # Triggers the workflow on push or pull request events but only for the "main" branch
+  push:
+    branches: [ "demo" ]
+  pull_request:
+    branches: [ "demo" ]
+
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+jobs:
+  # This workflow contains a single job called "build"
+  build:
+    # The type of runner that the job will run on
+    runs-on: ubuntu-latest
+
+    # Steps represent a sequence of tasks that will be executed as part of the job
+    steps:
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - uses: actions/checkout@v3
+
+      # Runs a single command using the runners shell
+      - name: Set up JDK
+        uses: actions/setup-java@v2
+        with:
+          distribution: 'adopt'
+          java-version: 11
+
+      - name: Build with Maven
+        run: |
+          cd demo_backend
+          chmod +x ./mvnw
+          ./mvnw install
+        
+      # Runs a set of commands using the runners shell
+      - name: Deploy to Server
+        env:
+          SERVER_KEY: ${{ secrets.SERVER_KEY }}
+        run: |
+          cd demo_backend
+          ls -al
+          echo "$SERVER_KEY" > deploy_key
+          chmod 600 deploy_key
+          scp -o StrictHostKeyChecking=no -i deploy_key target/*.jar root@124.221.108.4:/web/
+          ssh -o StrictHostKeyChecking=no -i deploy_key root@124.221.108.4 "/home/ubuntu/cyx/jdk-11.0.18/bin/java --version"
+          ssh -o StrictHostKeyChecking=no -i deploy_key root@124.221.108.4 "pkill -f 'java -jar *'"
+          ssh -f -o StrictHostKeyChecking=no -i deploy_key root@124.221.108.4 "cd /web && nohup /home/ubuntu/cyx/jdk-11.0.18/bin/java -jar *.jar >web.log  2>&1 &"
+          rm -f deploy_key

@@ -5,5 +5,5 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface Info_sic_latlonMapper {
-    public info_sic_latlon findlatlon();
+    public Info_sic_latlon findlatlon();
 }

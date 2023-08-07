@@ -2,6 +2,7 @@ package com.tongji.enso.mybatisdemo.controller;
 
 import com.tongji.enso.mybatisdemo.entity.online.Imgs;
 import com.tongji.enso.mybatisdemo.mapper.online.ImgsMapper;
+import com.tongji.enso.mybatisdemo.mapper.online.ImgsMapperEnso;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -299,6 +300,22 @@ public class ImgsController {
         Map<String, Object> result = new HashMap<>();
         result.put("earliestDate", earliestDate);
         result.put("latestDate", latestDate);
+        return result;
+    }
+
+    @Autowired
+    private ImgsMapperEnso ImgsMapperEnso;
+
+    /**
+     * 获取指定 年、月、index的图片路径
+     * eg. http://localhost:9090/imgs/WEA_U10/getImgsPath?year=2019&month=1&day=1
+     */
+    @RequestMapping("/predictionResult/ssta")
+    public Map<String,  Object> getSstaData(String year, String month, String day) {
+        List<Imgs> imgsData = ImgsMapperEnso.findImgsInfoByDayType(year, month,"WEA_U10");
+
+        Map<String, Object> result = new HashMap<>();
+        result.put("data", imgsData);
         return result;
     }
 
