@@ -42,11 +42,25 @@ public class ImgsController {
 
         // 从 0 时开始，每次 + 6
         int hour = 0;
+        int dayIncrement = 0; // 用于处理跨天情况
+        int daysInMonth = 30; // 假设每月固定为30天
         List<String> titlesList = new ArrayList<>();
         for (int i = 0; i < imgPaths.size(); i++)
         {
-            titlesList.add(String.format("%s年%s月%s日%d时待定待定", year, month, day, hour));
-            hour+= 6;
+            if (hour >= 24) {
+                hour -= 24;
+                dayIncrement += 1;
+            }
+
+            int newDay = Integer.parseInt(day) + dayIncrement;
+            int newMonth = Integer.parseInt(month);
+            if (newDay > daysInMonth) {
+                newDay -= daysInMonth;
+                newMonth++;
+            }
+
+            titlesList.add(String.format("%s年%s月%s日%d时待定待定", year, newMonth, newDay, hour));
+            hour += 6;
         }
 
         List<String> testsList = new ArrayList<>();
@@ -86,10 +100,24 @@ public class ImgsController {
 
         // 从 0 时开始，每次 + 6
         int hour = 0;
+        int dayIncrement = 0; // 用于处理跨天情况
+        int daysInMonth = 30; // 假设每月固定为30天
         List<String> titlesList = new ArrayList<>();
         for (int i = 0; i < imgPaths.size(); i++)
         {
-            titlesList.add(String.format("%s年%s月%s日%d时2米气温预测结果", year, month, day, hour));
+            if (hour >= 24) {
+                hour -= 24;
+                dayIncrement += 1;
+            }
+
+            int newDay = Integer.parseInt(day) + dayIncrement;
+            int newMonth = Integer.parseInt(month);
+            if (newDay > daysInMonth) {
+                newDay -= daysInMonth;
+                newMonth++;
+            }
+
+            titlesList.add(String.format("%s年%s月%s日%d时2米气温预测结果", year, newMonth, newDay, hour));
             hour+= 6;
         }
 
@@ -126,10 +154,24 @@ public class ImgsController {
 
         // 从 0 时开始，每次 + 6
         int hour = 0;
+        int dayIncrement = 0; // 用于处理跨天情况
+        int daysInMonth = 30; // 假设每月固定为30天
         List<String> titlesList = new ArrayList<>();
         for (int i = 0; i < imgPaths.size(); i++)
         {
-            titlesList.add(String.format("%s年%s月%s日%d时地表降水预测结果", year, month, day, hour));
+            if (hour >= 24) {
+                hour -= 24;
+                dayIncrement += 1;
+            }
+
+            int newDay = Integer.parseInt(day) + dayIncrement;
+            int newMonth = Integer.parseInt(month);
+            if (newDay > daysInMonth) {
+                newDay -= daysInMonth;
+                newMonth++;
+            }
+
+            titlesList.add(String.format("%s年%s月%s日%d时地表降水预测结果", year, newMonth, newDay, hour));
             hour+= 6;
         }
 
@@ -167,10 +209,24 @@ public class ImgsController {
 
         // 从 0 时开始，每次 + 6
         int hour = 0;
+        int dayIncrement = 0; // 用于处理跨天情况
+        int daysInMonth = 30; // 假设每月固定为30天
         List<String> titlesList = new ArrayList<>();
         for (int i = 0; i < imgPaths.size(); i++)
         {
-            titlesList.add(String.format("%s年%s月%s日%d时待定待定", year, month, day, hour));
+            if (hour >= 24) {
+                hour -= 24;
+                dayIncrement += 1;
+            }
+
+            int newDay = Integer.parseInt(day) + dayIncrement;
+            int newMonth = Integer.parseInt(month);
+            if (newDay > daysInMonth) {
+                newDay -= daysInMonth;
+                newMonth++;
+            }
+
+            titlesList.add(String.format("%s年%s月%s日%d时待定待定", year, newMonth, newDay, hour));
             hour+= 6;
         }
 
