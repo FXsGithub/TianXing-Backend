@@ -50,5 +50,5 @@ jobs:
           scp -o StrictHostKeyChecking=no -i deploy_key target/*.jar root@124.221.108.4:/web/
           ssh -o StrictHostKeyChecking=no -i deploy_key root@124.221.108.4 "/home/ubuntu/cyx/jdk-11.0.18/bin/java --version"
           ssh -o StrictHostKeyChecking=no -i deploy_key root@124.221.108.4 "pkill -f 'java -jar *'"
-          ssh -f -o StrictHostKeyChecking=no -i deploy_key root@124.221.108.4 "cd /web && nohup /home/ubuntu/cyx/jdk-11.0.18/bin/java -jar *.jar >web.log  2>&1 &"
+          ssh -f -o StrictHostKeyChecking=no -i deploy_key root@124.221.108.4 "cd /web && nohup /home/ubuntu/cyx/jdk-11.0.18/bin/java -jar *.jar >>web.log  2>&1 &"
           rm -f deploy_key
