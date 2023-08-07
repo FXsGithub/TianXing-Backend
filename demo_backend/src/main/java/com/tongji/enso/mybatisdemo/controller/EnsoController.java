@@ -698,12 +698,8 @@ public class EnsoController {
      * @return
      */
     @GetMapping("/predictionExamination/errorBox")
-    @ApiOperation(value = "误差计算：预测 - 观测", notes = "数据库数据有限，目前只能通过 year=2023 month=2/3/4 来访问")
+    @ApiOperation(value = "误差计算：预测 - 观测", notes = "数据库数据有限，目前只能通过 year=2023 month=2 来访问")
     public Map<String, Object> getErrorBox(@RequestParam("year") String year, @RequestParam("month") String month) {
-        Gson gson = new Gson();
-        Type listType = new TypeToken<List<Double>>() {
-        }.getType();
-
         Map<String, Object> result = new HashMap<>();
 
         Map<String, Object> option = new HashMap<>();
@@ -761,14 +757,14 @@ public class EnsoController {
         List<String> monthsToQuery = calculateMonthsToQuery(Integer.parseInt(year), Integer.parseInt(month), 12);
         for (String queryDate : monthsToQuery) {  // 从当前月份往前推12个月 （series 中包括12条数据）
             // 打印 queryDate
-//            System.out.println(queryDate);
+            // System.out.println(queryDate);
             String queryYear = queryDate.substring(0, 4);
             String queryMonth = queryDate.substring(5);
             // 如果第一位是0，去掉
             if (queryMonth.startsWith("0")) {
                 queryMonth = queryMonth.substring(1); // 去掉开头的零
             }
-//            System.out.println("year: " + queryYear + ", month: " + queryMonth);
+            // System.out.println("year: " + queryYear + ", month: " + queryMonth);
 
             List<Double> preData = getPreData(queryYear, queryMonth);
             List<Double> obsData = getObsData(queryYear, queryMonth);
@@ -824,31 +820,85 @@ public class EnsoController {
      * @param month
      * @return
      */
-//    @GetMapping("/predictionExamination/errorCorr")
-//    public Map<String, Double> getErrorCorr(@RequestParam("year") String year, @RequestParam("month") String month) {
-//        // 创建 Gson 对象和类型对象以解析 JSON
-//        Gson gson = new Gson();
-//        Type listType = new TypeToken<List<Double>>() {
-//        }.getType();
-//
-//        // 获取观察数据
-//        Map<String, List<Object>> monthlyComparisonData = getMonthlyComparison(year, month);
-//        List<Object> obs = monthlyComparisonData.get("obs");
-//        List<Double> obsData = (List<Double>)(List)obs;
-//
-//        // 获取预测数据
-//        String predictionMeanResult = ensoMapper.findEachPredictionsResultByMonthType(year, month, "nino34_mean");
-//        List<Double> predictionMeanList = gson.fromJson(predictionMeanResult, listType);
-//        List<Double> predictionMeanData = predictionMeanList.subList(0, obsData.size());
-//
-//        // 计算皮尔逊相关系数
-//        double correlation = getPearsonCorrelation(obsData, predictionMeanData);
-//
-//        // 创建一个哈希映射以存储皮尔逊相关系数
-//        Map<String, Double> correlationMap = new HashMap<>();
-//        correlationMap.put("nino34_mean", correlation);
-//
-//        return correlationMap;
-//    }
-//
+    @GetMapping("/predictionExamination/errorCorr")
+    @ApiOperation(value = "皮尔逊相关系数")
+    public Map<String, Object> getErrorCorr(@RequestParam("year") String year, @RequestParam("month") String month) {
+        Map<String, Object> result = new HashMap<>();
+
+        Map<String, Object> option = new HashMap<>();
+        List<Map<String, Object>> title = new ArrayList<>();
+        Map<String, Object> titleElement = new HashMap<>();
+        titleElement.put("text", "预测结果逐月相关性分析");
+        titleElement.put("left", "center");
+        title.add(titleElement);
+        option.put("title", title);
+
+        Map<String, Object> xAxis = new HashMap<>();
+        xAxis.put("type", "category");
+        List<String> xAxisData = new ArrayList<>();
+
+        List<String> monthsToQuery = calculateMonthsToQuery(Integer.parseInt(year), Integer.parseInt(month), 12);
+        for (String queryDate : monthsToQuery)
+        {
+            String queryYear = queryDate.substring(0, 4);
+            String queryMonth = queryDate.substring(5);
+            // 如果第一位是0，去掉
+            if (queryMonth.startsWith("0")) {
+                queryMonth = queryMonth.substring(1); // 去掉开头的零
+            }
+
+            String name = queryYear + "年" + queryMonth + "月起报结果";
+            xAxisData.add(name);
+        }
+        xAxis.put("data", xAxisData);
+        Map<String, Object> axisLabel = new HashMap<>();
+        axisLabel.put("show", true);
+        axisLabel.put("rotate", 30);
+        xAxis.put("axisLabel", axisLabel);
+        option.put("xAxis", xAxis);
+
+        Map<String, Object> yAxis = new HashMap<>();
+        yAxis.put("type", "value");
+        yAxis.put("name", "Niño 3.4 Index");
+        yAxis.put("data", Arrays.asList(0, 0.2, 0.4, 0.6, 0.8, 1));
+        option.put("yAxis", yAxis);
+
+        List<Map<String, Object>> series = new ArrayList<>();
+        Map<String, Object> seriesElement = new HashMap<>();
+
+        seriesElement.put("type", "line");
+        List<Double> seriesData = new ArrayList<>();
+        // 计算皮尔逊相关系数
+        for (String queryDate : monthsToQuery)
+        {
+            String queryYear = queryDate.substring(0, 4);
+            String queryMonth = queryDate.substring(5);
+            // 如果第一位是0，去掉
+            if (queryMonth.startsWith("0")) {
+                queryMonth = queryMonth.substring(1); // 去掉开头的零
+            }
+            // System.out.println("year: " + queryYear + ", month: " + queryMonth);
+
+            List<Double> preData = getPreData(queryYear, queryMonth);
+            List<Double> obsData = getObsData(queryYear, queryMonth);
+
+            // 两个数组可能不一样长，取短的
+            int length = Math.min(preData.size(), obsData.size());
+            preData = preData.subList(0, length);
+            obsData = obsData.subList(0, length);
+            System.out.println(preData);
+            System.out.println(obsData);
+            double correlation = getPearsonCorrelation(preData, obsData);
+            seriesData.add(correlation);
+        }
+        seriesElement.put("data", seriesData);
+        series.add(seriesElement);
+        option.put("series", series);
+
+        result.put("option", option);
+        result.put("text", "这里是说明文字");
+
+        return result;
+    }
+
 }
