@@ -65,10 +65,10 @@ public class Tj_naoController {
         xAxis.put("type","category");
         xAxis.put("name","时间");
         List<String> month_data=new ArrayList<>();
-        String[] chinese = {"一月","二月","三月","四月","五月","六月","七月","八月","九月","十月","十一月","十二月"};
+        String[] chinese_month = {"一月","二月","三月","四月","五月","六月","七月","八月","九月","十月","十一月","十二月"};
         int temp = m;
         for(int i=0; i<6; i++) {
-            month_data.add(chinese[temp - 1]);
+            month_data.add(chinese_month[temp - 1]);
             temp++;
             if(temp > 12){
                 temp = temp - 12;
@@ -156,7 +156,7 @@ public class Tj_naoController {
             e.printStackTrace();
         }
 
-        List<Map<String,Object>>series = new ArrayList<>();
+        List<Map<String,Object>> series = new ArrayList<>();
         Map<String,Object> obs_Data=new LinkedHashMap<>();
         Map<String,Object> pre_Data=new LinkedHashMap<>();
         obs_Data.put("name","观测值");
@@ -224,14 +224,61 @@ public class Tj_naoController {
      @ApiOperation(notes = "初始化预报结果折线图，返回可查询年月", value = "初始化预报结果折线图")
      public Map<String, Object> initialNAOPrediction(){
          List<Obs_nao> naoList = obs_naoservice.findNAOByModel("index_NAO_MCD");
-         Map<String, Object> naoMap=new HashMap<>();
+         Map<String, Object> naoMap=new LinkedHashMap<>();
+         Map<String,Object> result=new LinkedHashMap<>();
 
          // 返回最早可查询年月和最晚可查询年月
          String end_year=naoList.get(naoList.size()-1).getYear();
-         naoMap.put("start_year",naoList.get(0).getYear());
-         naoMap.put("start_month",naoList.get(0).getMonth());
-         naoMap.put("end_year",naoList.get(naoList.size()-1).getYear());
-         naoMap.put("end_month","7");
+         result.put("start_year",naoList.get(0).getYear());
+         result.put("start_month",naoList.get(0).getMonth());
+         result.put("end_year",naoList.get(naoList.size()-1).getYear());
+         result.put("end_month","7");
+
+         // 处理返回数据格式
+         Map<String, Object> title=new LinkedHashMap<>();
+         title.put("text",String.format("%s年%s月~%s年%s月 NAOI指数预测结果", end_year, "7", end_year, "12"));
+         title.put("left","center");
+         naoMap.put("title",title);
+         naoMap.put("tooltip","{}");
+         Map<String, Object> xAxis=new LinkedHashMap<>();
+         xAxis.put("type","category");
+         xAxis.put("name","时间");
+         List<String> month_data=new ArrayList<>();
+         String[] chinese = {"一月","二月","三月","四月","五月","六月","七月","八月","九月","十月","十一月","十二月"};
+         int temp = 7;
+         for(int i=0; i<6; i++) {
+             month_data.add(chinese[temp - 1]);
+             temp++;
+             if(temp > 12){
+                 temp = temp - 12;
+             }
+         }
+         xAxis.put("data",month_data);
+         naoMap.put("xAxis",xAxis);
+         Map<String,Object> yAxis=new LinkedHashMap<>();
+         yAxis.put("name","冬季NAOI");
+         yAxis.put("nameLocation","center");
+         Map<String,Object> nameTextStyle=new LinkedHashMap<>();
+         nameTextStyle.put("frontSize",16);
+         int[] padding=new int[4];
+         padding[0]=0;
+         padding[1]=0;
+         padding[2]=15;
+         padding[3]=0;
+         nameTextStyle.put("padding",padding);
+         String p="nameTextStyle";
+         yAxis.put(p,nameTextStyle);
+         yAxis.put("type","value");
+         naoMap.put("yAxis",yAxis);
+         Map<String,Object> legend=new LinkedHashMap<>();
+         String []legend_data= new String[2];
+         legend_data[0]="观测值";
+         legend_data[1]="NAO-MCR";
+         legend.put("data",legend_data);
+         legend.put("orient","horizontal");
+         legend.put("left","center");
+         legend.put("bottom","5");
+         naoMap.put("legend",legend);
 
          // 按最晚可查询年月查询预报数据和观测数据
          Tj_nao preResult = tj_naoservice.findPredictionByMonthAndModel(end_year,"7");
@@ -252,10 +299,23 @@ public class Tj_naoController {
          }catch (JsonProcessingException e){
              e.printStackTrace();
          }
-         naoMap.put("predictionData", pre_data);
-         naoMap.put("observationData", obs_data);
 
-         return naoMap;
+         List<Map<String,Object>> series = new ArrayList<>();
+         Map<String,Object> obs_Data=new LinkedHashMap<>();
+         Map<String,Object> pre_Data=new LinkedHashMap<>();
+         obs_Data.put("name","观测值");
+         obs_Data.put("type","line");
+         obs_Data.put("data",obs_data);
+         series.add(obs_Data);
+         pre_Data.put("name","NAO-MCR");
+         pre_Data.put("type","line");
+         pre_Data.put("data",pre_data);
+         series.add(pre_Data);
+         naoMap.put("series",series);
+
+         result.put("option",naoMap);
+         result.put("description","描述暂无");
+         return result;
      }
 
     /**
