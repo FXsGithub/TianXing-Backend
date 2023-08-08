@@ -644,7 +644,7 @@ public class EnsoController {
                 else{
                     currentMonth1=1;
                     currentYear1+=1;
-                    xAxis_data.add(currentMonth1+"-"+currentYear1);
+                    xAxis_data.add(currentYear1+"-"+currentMonth1);
                     currentMonth1++;
                 }
 
