@@ -244,10 +244,10 @@ public class Tj_naoController {
          xAxis.put("type","category");
          xAxis.put("name","时间");
          List<String> month_data=new ArrayList<>();
-         String[] chinese = {"一月","二月","三月","四月","五月","六月","七月","八月","九月","十月","十一月","十二月"};
+         String[] chinese_month = {"一月","二月","三月","四月","五月","六月","七月","八月","九月","十月","十一月","十二月"};
          int temp = 7;
          for(int i=0; i<6; i++) {
-             month_data.add(chinese[temp - 1]);
+             month_data.add(chinese_month[temp - 1]);
              temp++;
              if(temp > 12){
                  temp = temp - 12;
