@@ -45,7 +45,7 @@ public class Tj_sieController {
         HashMap<String, Object> option = new  HashMap<String, Object>();
         return_hashmap.put("option",option);
         
-        List<HashMap<String,Object>> avaliableList = new ArrayList<>();
+        List<HashMap<String,Object>> availableList = new ArrayList<>();
         availableList.add(new HashMap<>());
         availableList.get(0).put("year",2023);
         availableList.get(0).put("month",1);
