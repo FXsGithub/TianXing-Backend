@@ -697,7 +697,7 @@ public class EnsoController {
                 //误差
 
                 String temp_name = Year + "年" + Month + "月起报误差";
-                String temp_type = "bar";
+                String temp_type = "line";
 
                 temp.put("name", temp_name);
                 temp.put("type", temp_type);
@@ -729,7 +729,7 @@ public class EnsoController {
                 }
                 String tempError_name = Year + "年" + Month + "月起报";
                 tempError.put("name", tempError_name);
-                tempError.put("type", tempObs_type);
+                tempError.put("type", "bar");
                 tempError.put("lineStyle", tempObs_lineStyle);
                 tempError.put("data", error);
                 series.add(tempError);
