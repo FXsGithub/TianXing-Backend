@@ -638,7 +638,7 @@ public class EnsoController {
             for(int j=11;j>=0;j--){
 
                 if(currentMonth1<13){
-                    xAxis_data.add(currentMonth1+"-"+currentYear1);
+                    xAxis_data.add(currentYear1+"-"+currentMonth1);
                     currentMonth1++;
                 }
                 else{
@@ -682,7 +682,10 @@ public class EnsoController {
                 xAxis.put("type", xAxis_type);
                 xAxis.put("axisPointer", xAxis_axisPointer);
                 xAxis_axisPointer.put("type", xAxis_axisPointer_type);
-                xAxis_data.remove(0);//每次删去一个
+                int remove_len = 11 - i;
+                for (;remove_len>0;remove_len--){
+                    xAxis_data.remove(0);//每次删去一个
+                }
                 xAxis.put("data", xAxis_data);
                 xAxis.put("axisLabel", xAxis_axisLabel);
                 if(i<7){
