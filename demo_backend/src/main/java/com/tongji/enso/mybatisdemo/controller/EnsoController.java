@@ -696,7 +696,7 @@ public class EnsoController {
 
                 //误差
 
-                String temp_name = Year + "年" + Month + "月起报误差";
+                String temp_name = Year + "年" + Month + "月起报";
                 String temp_type = "line";
 
                 temp.put("name", temp_name);
@@ -727,7 +727,7 @@ public class EnsoController {
                     //？？？
                     error.add(Math.abs((Double.parseDouble(predictionMeanData.get(j).toString()) - Double.parseDouble(obs_data_fin.get(j).toString()))));
                 }
-                String tempError_name = Year + "年" + Month + "月起报";
+                String tempError_name = Year + "年" + Month + "月起报误差";
                 tempError.put("name", tempError_name);
                 tempError.put("type", "bar");
                 tempError.put("lineStyle", tempObs_lineStyle);
