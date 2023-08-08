@@ -44,10 +44,20 @@ public class Tj_sieController {
 
         HashMap<String, Object> option = new  HashMap<String, Object>();
         return_hashmap.put("option",option);
+        
+        List<HashMap<String,Object>> avaliableList = new ArrayList<>();
+        avaliableList.add(new HashMap<>());
+        avaliableList.get(0).put("year",2023);
+        avaliableList.get(0).put("month",1);
+        return_hashmap.put("avaliableList",avaliableList);
 
         HashMap<String, Object> title = new  HashMap<String, Object>();
         String next_year=Integer.parseInt(year)+1+"";
-        title.put("text",year+"年"+month+"月~"+next_year+"年"+month+"月SIE指数预测结果");
+        String end_month=Integer.parseInt(month)-1+"";
+        if(Integer.parseInt(month)>1)
+          title.put("text",year+"年"+month+"月~"+next_year+"年"+end_month+"月SIE指数预测结果");
+        else
+          title.put("text",year+"年1月~"+year+"年12月SIE指数预测结果");
         title.put("left","center");
         option.put("title",title);
 
