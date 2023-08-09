@@ -45,11 +45,11 @@ public class Tj_sieController {
         HashMap<String, Object> option = new  HashMap<String, Object>();
         return_hashmap.put("option",option);
         
-        List<HashMap<String,Object>> avaliableList = new ArrayList<>();
-        avaliableList.add(new HashMap<>());
-        avaliableList.get(0).put("year",2023);
-        avaliableList.get(0).put("month",1);
-        return_hashmap.put("avaliableList",avaliableList);
+        List<HashMap<String,Object>> availableList = new ArrayList<>();
+        availableList.add(new HashMap<>());
+        availableList.get(0).put("year",2023);
+        availableList.get(0).put("month",1);
+        return_hashmap.put("availableList",availableList);
 
         HashMap<String, Object> title = new  HashMap<String, Object>();
         String next_year=Integer.parseInt(year)+1+"";
@@ -181,7 +181,7 @@ public class Tj_sieController {
     @GetMapping("/initial/SIEprediction")
     @ApiOperation(value = "SIE可查询日期与最新预报结果", notes = "查询SIE指数预测结果图的可查询日期和最新预报")
     public HashMap<String ,Object> initialSIEprediction(){
-        List<String> yearList = Arrays.asList("2020", "2021", "2022", "2023");
+        List<String> yearList = Arrays.asList("2023");
         List<String> monthList=Arrays.asList("1");
         // 要返回的HashMap
         HashMap<String, Object> return_hashmap = new HashMap<String, Object>();

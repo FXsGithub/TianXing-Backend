@@ -366,7 +366,7 @@ public class ImgsController {
      * 获取指定 年、月、index的图片路径
      * eg. http://localhost:9090/imgs/WEA_U10/getImgsPath?year=2019&month=1&day=1
      */
-    @RequestMapping("/predictionResult/ssta")
+    @GetMapping("/predictionResult/ssta")
     public Map<String,  Object> getSstaData(String year, String month, String day) {
         List<Imgs> imgsData = ImgsMapperEnso.findImgsInfoByDayType(year, month,"WEA_U10");
 

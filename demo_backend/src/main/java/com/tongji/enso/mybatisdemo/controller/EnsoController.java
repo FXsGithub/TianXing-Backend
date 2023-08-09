@@ -176,6 +176,7 @@ public class EnsoController {
         return resultMap;
     }
 
+
     @GetMapping("/predictionExamination/monthlyComparison")
     public Map<String, Object> getMonthlyComparison(@RequestParam("year") String year, @RequestParam("month") String month) {
         Gson gson = new Gson();
@@ -216,6 +217,7 @@ public class EnsoController {
 
         //map
         Map<String, Object> resultMap = new HashMap<>();
+        Map<String, Object> resultMap1 = new HashMap<>();
         Map<String, Object> title = new HashMap<>();
         Map<String, Object> tooltip = new HashMap<>();
         Map<String, Object> legend = new HashMap<>();
@@ -235,7 +237,7 @@ public class EnsoController {
 
         String title_text="预测结果逐月对比";
         String title_left="center";
-        String tooltip_trigger="axis";
+        String tooltip_trigger="item";
         String legend_x="center";
         String legend_y="bottom";
         String legend_tooltip_show="true";
@@ -276,7 +278,9 @@ public class EnsoController {
         String series_title_lineStyle_color="black";
         int series_title_lineStyle_width=3;
         String series_title_itemStyle_color="black";
+        String resultmap1_text="此处为预测结果汇总折线图。除22年10月-23年1月外，其他月份的预测结果与官方记录差异不大。预测误差较大可能与近年来连续冷（拉尼娜）事件快结束时状态不稳定有关。\n";
 
+        resultMap1.put("text",resultmap1_text);
         title.put("text", title_text);
         title.put("left", title_left);
         tooltip.put("trigger", tooltip_trigger);
@@ -352,10 +356,190 @@ public class EnsoController {
         resultMap.put("xAxis",xAxis);
         resultMap.put("yAxis",yAxis);
         resultMap.put("series",series);
-
-        return resultMap;
+        resultMap1.put("option",resultMap);
+        return resultMap1;
 
     }
+//    @GetMapping("/predictionExamination/monthlyComparison")
+//    public Map<String, Object> getMonthlyComparison(@RequestParam("year") String year, @RequestParam("month") String month) {
+//        Gson gson = new Gson();
+//
+//        Type listType = new TypeToken<List<Object>>() {
+//        }.getType();
+//        int currentMonthStatic = Integer.parseInt(month);
+//        int currentYearStatic = Integer.parseInt(year);
+//        String lastYear = String.valueOf(currentYearStatic-1);
+//        List<Object> obsData=new ArrayList<>();// 用来存放obs数据
+//
+//        // 查询所有数据,今年和去年
+//        String YearResult2022 = ensoMapper.findObsEnsoByYear(lastYear);
+//        if (YearResult2022 != null) {
+//            List<Object> currentYearData1 = gson.fromJson(YearResult2022, listType);
+//            obsData.addAll(currentYearData1);
+//        }
+//        String YearResult2023 = ensoMapper.findObsEnsoByYear(year);
+//        if (YearResult2023 != null) {
+//            List<Object> currentYearData2 = gson.fromJson(YearResult2023, listType);
+//            obsData.addAll(currentYearData2);
+//        }
+//        int CMonth;
+//        if(currentMonthStatic-12==0){
+//            CMonth = currentMonthStatic;
+//        }
+//        else{
+//            CMonth=12+currentMonthStatic;
+//        }
+//        List<Object> obs_data = new ArrayList<>();
+//        if (CMonth-12 >0)  // 最多往前查12个月
+//        {
+//            obs_data = obsData.subList(CMonth-12,CMonth);
+//        }
+//        else{
+//            obs_data = obsData.subList(0, CMonth);
+//        }
+//
+//        //map
+//        Map<String, Object> resultMap = new HashMap<>();
+//        Map<String, Object> title = new HashMap<>();
+//        Map<String, Object> tooltip = new HashMap<>();
+//        Map<String, Object> legend = new HashMap<>();
+//        Map<String, Object> legend_tooltip = new HashMap<>();
+//        Map<String, Object> grid = new HashMap<>();
+//        Map<String, Object> toolbox = new HashMap<>();
+//        Map<String, Object> toolbox_feature = new HashMap<>();
+//        Map<String, Object> toolbox_feature_saveAsImage = new HashMap<>();
+//        Map<String, Object> xAxis = new HashMap<>();
+//        List<Object> xAxis_data = new ArrayList<>();
+//        Map<String, Object> xAxis_axisLabel = new HashMap<>();
+//        Map<String, Object> yAxis = new HashMap<>();
+//        List<Map<String, Object>> series= new ArrayList<>();
+//        Map<String, Object> series_title = new HashMap<>();
+//        Map<String, Object> series_title_lineStyle = new HashMap<>();
+//        Map<String, Object> series_title_itemStyle = new HashMap<>();
+//
+//        String title_text="预测结果逐月对比";
+//        String title_left="center";
+//        String tooltip_trigger="axis";
+//        String legend_x="center";
+//        String legend_y="bottom";
+//        String legend_tooltip_show="true";
+//        String grid_left="3%";
+//        String grid_right="4%";
+//        String grid_bottom="25%";
+//        String grid_containLabel="true";
+//        String xAxis_type="category";
+//        String xAxis_boundaryGap="false";
+//        int currentYear1;
+//        if(currentMonthStatic==12){
+//            currentYear1=Integer.parseInt(year);
+//        }
+//        else{
+//            currentYear1=Integer.parseInt(year)-1;
+//        }
+//        int currentMonth1=CMonth-11;
+//        //xAxis处理
+//        for(int j=11;j>=0;j--){
+//
+//            if(currentMonth1<13){
+//                xAxis_data.add(currentMonth1+"-"+currentYear1);
+//                currentMonth1++;
+//            }
+//            else{
+//                currentMonth1=1;
+//                currentYear1+=1;
+//                xAxis_data.add(currentMonth1+"-"+currentYear1);
+//                currentMonth1++;
+//            }
+//
+//        }
+//        int xAxis_interval=2;
+//        String yAxis_type="value";
+//        String yAxis_name="Niño 3.4 Index";
+//        String series_title_name="气候中心Nino3.4指数记录";
+//        String series_title_type="line";
+//        String series_title_lineStyle_color="black";
+//        int series_title_lineStyle_width=3;
+//        String series_title_itemStyle_color="black";
+//
+//        title.put("text", title_text);
+//        title.put("left", title_left);
+//        tooltip.put("trigger", tooltip_trigger);
+//        legend.put("x", legend_x);
+//        legend.put("y", legend_y);
+//        legend.put("tooltip", legend_tooltip);
+//        legend_tooltip.put("show",legend_tooltip_show);
+//        grid.put("left",grid_left);
+//        grid.put("right",grid_right);
+//        grid.put("bottom",grid_bottom);
+//        grid.put("containLabel",grid_containLabel);
+//        toolbox.put("feature",toolbox_feature);
+//        toolbox_feature.put("saveAsImage",toolbox_feature_saveAsImage);
+//        xAxis.put("type",xAxis_type);
+//        xAxis.put("boundaryGap",xAxis_boundaryGap);
+//        xAxis.put("data",xAxis_data);
+//        xAxis.put("axisLabel",xAxis_axisLabel);
+//        xAxis_axisLabel.put("interval",xAxis_interval);
+//        yAxis.put("type",yAxis_type);
+//        yAxis.put("name",yAxis_name);
+//        series_title.put("name",series_title_name);
+//        series_title.put("type",series_title_type);
+//        series_title.put("lineStyle",series_title_lineStyle);
+//        series_title.put("itemStyle",series_title_itemStyle);
+//        series_title_lineStyle.put("color",series_title_lineStyle_color);
+//        series_title_lineStyle.put("width",series_title_lineStyle_width);
+//        series_title_itemStyle.put("color",series_title_itemStyle_color);
+//        series_title.put("data",obs_data);
+//        series.add(series_title);
+//
+//        int currentYear,currentMonth;
+//        // 预测数据
+//        for (int i = 11; i >= 0; i--) {
+//            if (currentMonthStatic - i < 1) {
+//                currentYear = currentYearStatic - 1;
+//                currentMonth = currentMonthStatic + 12 - i;
+//            } else {
+//                currentYear = currentYearStatic;
+//                currentMonth = currentMonthStatic - i;
+//            }
+//            String Year = String.valueOf(currentYear);
+//            String Month = String.valueOf(currentMonth);
+//            String predictionMeanResult = ensoMapper.findEachPredictionsResultByMonthType(Year, Month, "nino34_mean");
+//            if (predictionMeanResult != null) {
+//                Map<String, Object> temp = new HashMap<>();
+//                String temp_name = Year + "年" + Month + "月起报预报误差";
+//                String temp_type = "line";
+//                String temp_lineStyle_type = "dashed";
+//                Map<String, Object> temp_lineStyle = new HashMap<>();
+//
+//                temp.put("name", temp_name);
+//                temp.put("type", temp_type);
+//                temp.put("lineStyle", temp_lineStyle);
+//                temp_lineStyle.put("lineStyle", temp_lineStyle_type);
+//                if (predictionMeanResult != null) {
+//                    List<Object> predictionMeanList = gson.fromJson(predictionMeanResult, listType);  // 将结果字符串转换为列表
+//                    List<Object> predictionMeanData = predictionMeanList.subList(0, i + 1);
+//                    for (int j = 11; j > i; j--) {
+//                        predictionMeanData.add(0, "null");
+//                    }
+//
+//                    temp.put("data", predictionMeanData);
+//                }
+//                series.add(temp);
+//            }
+//        }
+//        //最后的总和
+//        resultMap.put("title",title);
+//        resultMap.put("tooltip",tooltip);
+//        resultMap.put("legend",legend);
+//        resultMap.put("grid",grid);
+//        resultMap.put("toolbox",toolbox);
+//        resultMap.put("xAxis",xAxis);
+//        resultMap.put("yAxis",yAxis);
+//        resultMap.put("series",series);
+//
+//        return resultMap;
+//
+//    }
 
 
     /**
@@ -366,7 +550,7 @@ public class EnsoController {
      * @return
      */
     @GetMapping("/predictionExamination/error")
-    public List<Object> getError(@RequestParam("year") String year, @RequestParam("month") String month) {
+    public Map<String, Object> getError(@RequestParam("year") String year, @RequestParam("month") String month) {
         Gson gson = new Gson();
         Type listType = new TypeToken<List<Double>>() {
         }.getType();
@@ -402,69 +586,71 @@ public class EnsoController {
         else{
             obs_data = obsData.subList(0, CMonth);
         }
-        //map
         List<Object> option=new ArrayList<>();// 用来存放obs数据
-        Map<String, Object> resultMap = new HashMap<>();
-        Map<String, Object> title = new HashMap<>();
-        Map<String, Object> tooltip = new HashMap<>();
-        Map<String, Object> tooltip_axisPointer = new HashMap<>();
-        Map<String, Object> tooltip_axisPointer_crossStyle = new HashMap<>();
-        Map<String, Object> legend = new HashMap<>();
-        Map<String, Object> legend_tooltip = new HashMap<>();
-        Map<String, Object> toolbox = new HashMap<>();
-        Map<String, Object> toolbox_feature = new HashMap<>();
-        Map<String, Object> toolbox_feature_saveAsImage = new HashMap<>();
-        Map<String,Object> xAxis= new HashMap<>();
-        List<Object> xAxis1 = new ArrayList<>();
-        List<Object> xAxis_data = new ArrayList<>();
-        Map<String, Object> xAxis_axisLabel = new HashMap<>();
-        Map<String, Object> xAxis_axisPointer = new HashMap<>();
-        Map<String,Object> yAxis= new HashMap<>();
-        List<Object> yAxis1 = new ArrayList<>();
-        List<Map<String, Object>> series= new ArrayList<>();
-
-        String title_text="预报结果误差柱状图";
-        String title_left="center";
-        String tooltip_trigger="axis";
-        String tooltip_axisPointer_type="cross";
-        String tooltip_axisPointer_crossStyle_color="#999";
-        String legend_x="center";
-        String legend_y="bottom";
-        String legend_tooltip_show="true";
-        String xAxis_type="category";
-        String xAxis_axisPointer_type="shadow";
-        int xAxis_interval=2;
-        String yAxis_type="value";
-        String yAxis_name="Niño 3.4 Index";
-
-
-        int currentYear1;
-        if(currentMonthStatic==12){
-            currentYear1=Integer.parseInt(year);
-        }
-        else{
-            currentYear1=Integer.parseInt(year)-1;
-        }
-        int currentMonth1=CMonth-11;
-        //xAxis处理
-        for(int j=11;j>=0;j--){
-
-            if(currentMonth1<13){
-                xAxis_data.add(currentMonth1+"-"+currentYear1);
-                currentMonth1++;
-            }
-            else{
-                currentMonth1=1;
-                currentYear1+=1;
-                xAxis_data.add(currentMonth1+"-"+currentYear1);
-                currentMonth1++;
-            }
-
-        }
-
         int currentYear,currentMonth;
         // 预测数据
         for (int i = 11; i >= 0; i--) {
+            //全部放进去
+            //map
+
+            Map<String, Object> resultMap = new HashMap<>();
+            Map<String, Object> title = new HashMap<>();
+            Map<String, Object> tooltip = new HashMap<>();
+            Map<String, Object> tooltip_axisPointer = new HashMap<>();
+            Map<String, Object> tooltip_axisPointer_crossStyle = new HashMap<>();
+            Map<String, Object> legend = new HashMap<>();
+            Map<String, Object> legend_tooltip = new HashMap<>();
+            Map<String, Object> toolbox = new HashMap<>();
+            Map<String, Object> toolbox_feature = new HashMap<>();
+            Map<String, Object> toolbox_feature_saveAsImage = new HashMap<>();
+            Map<String,Object> xAxis= new HashMap<>();
+            List<Object> xAxis1 = new ArrayList<>();
+            List<Object> xAxis_data = new ArrayList<>();
+            Map<String, Object> xAxis_axisLabel = new HashMap<>();
+            Map<String, Object> xAxis_axisPointer = new HashMap<>();
+            Map<String,Object> yAxis= new HashMap<>();
+            List<Object> yAxis1 = new ArrayList<>();
+            List<Map<String, Object>> series= new ArrayList<>();
+
+            String title_text="预报结果误差柱状图";
+            String title_left="center";
+            String tooltip_trigger="axis";
+            String tooltip_axisPointer_type="cross";
+            String tooltip_axisPointer_crossStyle_color="#999";
+            String legend_x="center";
+            String legend_y="bottom";
+            String legend_tooltip_show="true";
+            String xAxis_type="category";
+            String xAxis_axisPointer_type="shadow";
+            int xAxis_interval=1;
+            String yAxis_type="value";
+            String yAxis_name="Niño 3.4 Index";
+
+            int currentYear1;
+            if(currentMonthStatic==12){
+                currentYear1=Integer.parseInt(year);
+            }
+            else{
+                currentYear1=Integer.parseInt(year)-1;
+            }
+            int currentMonth1=CMonth-11;
+            //xAxis处理
+            for(int j=11;j>=0;j--){
+
+                if(currentMonth1<13){
+                    xAxis_data.add(currentYear1+"-"+currentMonth1);
+                    currentMonth1++;
+                }
+                else{
+                    currentMonth1=1;
+                    currentYear1+=1;
+                    xAxis_data.add(currentYear1+"-"+currentMonth1);
+                    currentMonth1++;
+                }
+
+            }
+
+            //预测数据部分
             if (currentMonthStatic - i < 1) {
                 currentYear = currentYearStatic - 1;
                 currentMonth = currentMonthStatic + 12 - i;
@@ -496,24 +682,28 @@ public class EnsoController {
                 xAxis.put("type", xAxis_type);
                 xAxis.put("axisPointer", xAxis_axisPointer);
                 xAxis_axisPointer.put("type", xAxis_axisPointer_type);
-                xAxis_data.remove(0);//每次删去一个
+                int remove_len = 11 - i;
+                for (;remove_len>0;remove_len--){
+                    xAxis_data.remove(0);//每次删去一个
+                }
                 xAxis.put("data", xAxis_data);
                 xAxis.put("axisLabel", xAxis_axisLabel);
-                xAxis_axisLabel.put("interval", xAxis_interval);
+                if(i<7){
+                    xAxis_axisLabel.put("interval", xAxis_interval+1);
+                }
+                else{
+                    xAxis_axisLabel.put("interval", xAxis_interval);
+                }
                 yAxis.put("type", yAxis_type);
                 yAxis.put("name", yAxis_name);
 
                 //误差
 
-                String temp_name = Year + "年" + Month + "月起报预报误差";
+                String temp_name = Year + "年" + Month + "月起报";
                 String temp_type = "line";
-                String temp_lineStyle_type = "dashed";
-                Map<String, Object> temp_lineStyle = new HashMap<>();
 
                 temp.put("name", temp_name);
                 temp.put("type", temp_type);
-                temp.put("lineStyle", temp_lineStyle);
-                temp_lineStyle.put("lineStyle", temp_lineStyle_type);
                 List<Object> predictionMeanData = new ArrayList<>();
 
                 List<Object> predictionMeanList = gson.fromJson(predictionMeanResult, listType);  // 将结果字符串转换为列表
@@ -540,28 +730,435 @@ public class EnsoController {
                     //？？？
                     error.add(Math.abs((Double.parseDouble(predictionMeanData.get(j).toString()) - Double.parseDouble(obs_data_fin.get(j).toString()))));
                 }
-                String tempError_name = Year + "年" + Month + "月起报";
+                String tempError_name = Year + "年" + Month + "月起报误差";
                 tempError.put("name", tempError_name);
-                tempError.put("type", tempObs_type);
+                tempError.put("type", "bar");
                 tempError.put("lineStyle", tempObs_lineStyle);
                 tempError.put("data", error);
                 series.add(tempError);
 
+                //最后的总和
+                resultMap.put("title",title);
+                resultMap.put("tooltip",tooltip);
+                resultMap.put("legend",legend);
+                resultMap.put("toolbox",toolbox);
+                xAxis1.add(xAxis);
+                yAxis1.add(yAxis);
+                resultMap.put("xAxis",xAxis1);
+                resultMap.put("yAxis",yAxis1);
+                resultMap.put("series",series);
+                option.add(resultMap);
             }
+
         }
-        //最后的总和
-        resultMap.put("title",title);
-        resultMap.put("tooltip",tooltip);
-        resultMap.put("legend",legend);
-        resultMap.put("toolbox",toolbox);
-        xAxis1.add(xAxis);
-        yAxis1.add(yAxis);
-        resultMap.put("xAxis",xAxis1);
-        resultMap.put("yAxis",yAxis1);
-        resultMap.put("series",series);
-        option.add(resultMap);
-        return option;
+        Map <String,Object>FinResult=new HashMap<>();
+        String text="此处的12副图分别为从2022年2月~2023年1月起报的预测结果、官方记录结果及二者绝对差值图（柱状）。\n";
+        FinResult.put("option",option);
+        FinResult.put("text",text);
+        return FinResult;
     }
+//    @GetMapping("/predictionExamination/error")
+//    public List<Object> getError(@RequestParam("year") String year, @RequestParam("month") String month) {
+//        Gson gson = new Gson();
+//        Type listType = new TypeToken<List<Double>>() {
+//        }.getType();
+//        int currentMonthStatic = Integer.parseInt(month);
+//        int currentYearStatic = Integer.parseInt(year);
+//        String lastYear = String.valueOf(currentYearStatic-1);
+//
+//        List<Object> obsData=new ArrayList<>();// 用来存放obs数据
+//
+//        // 查询所有数据,今年和去年
+//        String YearResult2022 = ensoMapper.findObsEnsoByYear(lastYear);
+//        if (YearResult2022 != null) {
+//            List<Object> currentYearData1 = gson.fromJson(YearResult2022, listType);
+//            obsData.addAll(currentYearData1);
+//        }
+//        String YearResult2023 = ensoMapper.findObsEnsoByYear(year);
+//        if (YearResult2023 != null) {
+//            List<Object> currentYearData2 = gson.fromJson(YearResult2023, listType);
+//            obsData.addAll(currentYearData2);
+//        }
+//        int CMonth;
+//        if(currentMonthStatic-12==0){
+//            CMonth = currentMonthStatic;
+//        }
+//        else{
+//            CMonth=12+currentMonthStatic;
+//        }
+//        List<Object> obs_data = new ArrayList<>();
+//        if (CMonth-12 >0)  // 最多往前查12个月
+//        {
+//            obs_data = obsData.subList(CMonth-12,CMonth);
+//        }
+//        else{
+//            obs_data = obsData.subList(0, CMonth);
+//        }
+//        List<Object> option=new ArrayList<>();// 用来存放obs数据
+//        int currentYear,currentMonth;
+//        // 预测数据
+//        for (int i = 11; i >= 0; i--) {
+//            //全部放进去
+//            //map
+//
+//            Map<String, Object> resultMap = new HashMap<>();
+//            Map<String, Object> title = new HashMap<>();
+//            Map<String, Object> tooltip = new HashMap<>();
+//            Map<String, Object> tooltip_axisPointer = new HashMap<>();
+//            Map<String, Object> tooltip_axisPointer_crossStyle = new HashMap<>();
+//            Map<String, Object> legend = new HashMap<>();
+//            Map<String, Object> legend_tooltip = new HashMap<>();
+//            Map<String, Object> toolbox = new HashMap<>();
+//            Map<String, Object> toolbox_feature = new HashMap<>();
+//            Map<String, Object> toolbox_feature_saveAsImage = new HashMap<>();
+//            Map<String,Object> xAxis= new HashMap<>();
+//            List<Object> xAxis1 = new ArrayList<>();
+//            List<Object> xAxis_data = new ArrayList<>();
+//            Map<String, Object> xAxis_axisLabel = new HashMap<>();
+//            Map<String, Object> xAxis_axisPointer = new HashMap<>();
+//            Map<String,Object> yAxis= new HashMap<>();
+//            List<Object> yAxis1 = new ArrayList<>();
+//            List<Map<String, Object>> series= new ArrayList<>();
+//
+//            String title_text="预报结果误差柱状图";
+//            String title_left="center";
+//            String tooltip_trigger="axis";
+//            String tooltip_axisPointer_type="cross";
+//            String tooltip_axisPointer_crossStyle_color="#999";
+//            String legend_x="center";
+//            String legend_y="bottom";
+//            String legend_tooltip_show="true";
+//            String xAxis_type="category";
+//            String xAxis_axisPointer_type="shadow";
+//            int xAxis_interval=1;
+//            String yAxis_type="value";
+//            String yAxis_name="Niño 3.4 Index";
+//
+//            int currentYear1;
+//            if(currentMonthStatic==12){
+//                currentYear1=Integer.parseInt(year);
+//            }
+//            else{
+//                currentYear1=Integer.parseInt(year)-1;
+//            }
+//            int currentMonth1=CMonth-11;
+//            //xAxis处理
+//            for(int j=11;j>=0;j--){
+//
+//                if(currentMonth1<13){
+//                    xAxis_data.add(currentMonth1+"-"+currentYear1);
+//                    currentMonth1++;
+//                }
+//                else{
+//                    currentMonth1=1;
+//                    currentYear1+=1;
+//                    xAxis_data.add(currentMonth1+"-"+currentYear1);
+//                    currentMonth1++;
+//                }
+//
+//            }
+//
+//            //预测数据部分
+//            if (currentMonthStatic - i < 1) {
+//                currentYear = currentYearStatic - 1;
+//                currentMonth = currentMonthStatic + 12 - i;
+//            } else {
+//                currentYear = currentYearStatic;
+//                currentMonth = currentMonthStatic - i;
+//            }
+//            String Year = String.valueOf(currentYear);
+//            String Month = String.valueOf(currentMonth);
+//            String predictionMeanResult = ensoMapper.findEachPredictionsResultByMonthType(Year, Month, "nino34_mean");
+//            if (predictionMeanResult != null) {
+//                Map<String, Object> temp = new HashMap<>();
+//                Map<String, Object> tempObs = new HashMap<>();
+//                Map<String, Object> tempError = new HashMap<>();
+//
+//                title.put("text", title_text);
+//                title.put("left", title_left);
+//                tooltip.put("trigger", tooltip_trigger);
+//                tooltip.put("axisPointer", tooltip_axisPointer);
+//                tooltip_axisPointer.put("type", tooltip_axisPointer_type);
+//                tooltip_axisPointer.put("crossStyle", tooltip_axisPointer_crossStyle);
+//                tooltip_axisPointer_crossStyle.put("color", tooltip_axisPointer_crossStyle_color);
+//                legend.put("x", legend_x);
+//                legend.put("y", legend_y);
+//                legend.put("tooltip", legend_tooltip);
+//                legend_tooltip.put("show", legend_tooltip_show);
+//                toolbox.put("feature", toolbox_feature);
+//                toolbox_feature.put("saveAsImage", toolbox_feature_saveAsImage);
+//                xAxis.put("type", xAxis_type);
+//                xAxis.put("axisPointer", xAxis_axisPointer);
+//                xAxis_axisPointer.put("type", xAxis_axisPointer_type);
+//                xAxis_data.remove(0);//每次删去一个
+//                xAxis.put("data", xAxis_data);
+//                xAxis.put("axisLabel", xAxis_axisLabel);
+//                if(i<7){
+//                    xAxis_axisLabel.put("interval", xAxis_interval+1);
+//                }
+//                else{
+//                    xAxis_axisLabel.put("interval", xAxis_interval);
+//                }
+//                yAxis.put("type", yAxis_type);
+//                yAxis.put("name", yAxis_name);
+//
+//                //误差
+//
+//                String temp_name = Year + "年" + Month + "月起报误差";
+//                String temp_type = "bar";
+//
+//                temp.put("name", temp_name);
+//                temp.put("type", temp_type);
+//                List<Object> predictionMeanData = new ArrayList<>();
+//
+//                List<Object> predictionMeanList = gson.fromJson(predictionMeanResult, listType);  // 将结果字符串转换为列表
+//                predictionMeanData = predictionMeanList.subList(0, i + 1);
+//                ;
+//                temp.put("data", predictionMeanData);
+//
+//                series.add(temp);
+//                //标准
+//                Map<String, Object> tempObs_lineStyle = new HashMap<>();
+//                List<Object> obs_data_fin = obs_data.subList(11 - i, obs_data.size());
+//                String tempObs_name = "气候中心Nino3.4指数记录";
+//                String tempObs_type = "line";
+//                String tempObs_lineStyle_type = "dashed";
+//                tempObs_lineStyle.put("type", tempObs_lineStyle_type);
+//                tempObs.put("name", tempObs_name);
+//                tempObs.put("type", tempObs_type);
+//                tempObs.put("lineStyle", tempObs_lineStyle);
+//                tempObs.put("data", obs_data_fin);
+//                series.add(tempObs);
+//                //差集
+//                List<Object> error = new ArrayList<>();
+//                for (int j = 0; j <= i; j++) {
+//                    //？？？
+//                    error.add(Math.abs((Double.parseDouble(predictionMeanData.get(j).toString()) - Double.parseDouble(obs_data_fin.get(j).toString()))));
+//                }
+//                String tempError_name = Year + "年" + Month + "月起报";
+//                tempError.put("name", tempError_name);
+//                tempError.put("type", tempObs_type);
+//                tempError.put("lineStyle", tempObs_lineStyle);
+//                tempError.put("data", error);
+//                series.add(tempError);
+//
+//                //最后的总和
+//                resultMap.put("title",title);
+//                resultMap.put("tooltip",tooltip);
+//                resultMap.put("legend",legend);
+//                resultMap.put("toolbox",toolbox);
+//                xAxis1.add(xAxis);
+//                yAxis1.add(yAxis);
+//                resultMap.put("xAxis",xAxis1);
+//                resultMap.put("yAxis",yAxis1);
+//                resultMap.put("series",series);
+//                option.add(resultMap);
+//            }
+//
+//        }
+//        Map <String,Object>FinResult=new HashMap<>();
+//        String text="此处的12副图分别为从2022年2月~2023年1月起报的预测结果、官方记录结果及二者绝对差值图（柱状）。\n";
+//        FinResult.put("option",option);
+//        FinResult.put("text",text);
+//        return option;
+//    }
+//    @GetMapping("/predictionExamination/error")
+//    public List<Object> getError(@RequestParam("year") String year, @RequestParam("month") String month) {
+//        Gson gson = new Gson();
+//        Type listType = new TypeToken<List<Double>>() {
+//        }.getType();
+//        int currentMonthStatic = Integer.parseInt(month);
+//        int currentYearStatic = Integer.parseInt(year);
+//        String lastYear = String.valueOf(currentYearStatic-1);
+//
+//        List<Object> obsData=new ArrayList<>();// 用来存放obs数据
+//
+//        // 查询所有数据,今年和去年
+//        String YearResult2022 = ensoMapper.findObsEnsoByYear(lastYear);
+//        if (YearResult2022 != null) {
+//            List<Object> currentYearData1 = gson.fromJson(YearResult2022, listType);
+//            obsData.addAll(currentYearData1);
+//        }
+//        String YearResult2023 = ensoMapper.findObsEnsoByYear(year);
+//        if (YearResult2023 != null) {
+//            List<Object> currentYearData2 = gson.fromJson(YearResult2023, listType);
+//            obsData.addAll(currentYearData2);
+//        }
+//        int CMonth;
+//        if(currentMonthStatic-12==0){
+//            CMonth = currentMonthStatic;
+//        }
+//        else{
+//            CMonth=12+currentMonthStatic;
+//        }
+//        List<Object> obs_data = new ArrayList<>();
+//        if (CMonth-12 >0)  // 最多往前查12个月
+//        {
+//            obs_data = obsData.subList(CMonth-12,CMonth);
+//        }
+//        else{
+//            obs_data = obsData.subList(0, CMonth);
+//        }
+//        //map
+//        List<Object> option=new ArrayList<>();// 用来存放obs数据
+//        Map<String, Object> resultMap = new HashMap<>();
+//        Map<String, Object> title = new HashMap<>();
+//        Map<String, Object> tooltip = new HashMap<>();
+//        Map<String, Object> tooltip_axisPointer = new HashMap<>();
+//        Map<String, Object> tooltip_axisPointer_crossStyle = new HashMap<>();
+//        Map<String, Object> legend = new HashMap<>();
+//        Map<String, Object> legend_tooltip = new HashMap<>();
+//        Map<String, Object> toolbox = new HashMap<>();
+//        Map<String, Object> toolbox_feature = new HashMap<>();
+//        Map<String, Object> toolbox_feature_saveAsImage = new HashMap<>();
+//        Map<String,Object> xAxis= new HashMap<>();
+//        List<Object> xAxis1 = new ArrayList<>();
+//        List<Object> xAxis_data = new ArrayList<>();
+//        Map<String, Object> xAxis_axisLabel = new HashMap<>();
+//        Map<String, Object> xAxis_axisPointer = new HashMap<>();
+//        Map<String,Object> yAxis= new HashMap<>();
+//        List<Object> yAxis1 = new ArrayList<>();
+//        List<Map<String, Object>> series= new ArrayList<>();
+//
+//        String title_text="预报结果误差柱状图";
+//        String title_left="center";
+//        String tooltip_trigger="axis";
+//        String tooltip_axisPointer_type="cross";
+//        String tooltip_axisPointer_crossStyle_color="#999";
+//        String legend_x="center";
+//        String legend_y="bottom";
+//        String legend_tooltip_show="true";
+//        String xAxis_type="category";
+//        String xAxis_axisPointer_type="shadow";
+//        int xAxis_interval=2;
+//        String yAxis_type="value";
+//        String yAxis_name="Niño 3.4 Index";
+//
+//
+//        int currentYear1;
+//        if(currentMonthStatic==12){
+//            currentYear1=Integer.parseInt(year);
+//        }
+//        else{
+//            currentYear1=Integer.parseInt(year)-1;
+//        }
+//        int currentMonth1=CMonth-11;
+//        //xAxis处理
+//        for(int j=11;j>=0;j--){
+//
+//            if(currentMonth1<13){
+//                xAxis_data.add(currentMonth1+"-"+currentYear1);
+//                currentMonth1++;
+//            }
+//            else{
+//                currentMonth1=1;
+//                currentYear1+=1;
+//                xAxis_data.add(currentMonth1+"-"+currentYear1);
+//                currentMonth1++;
+//            }
+//
+//        }
+//
+//        int currentYear,currentMonth;
+//        // 预测数据
+//        for (int i = 11; i >= 0; i--) {
+//            if (currentMonthStatic - i < 1) {
+//                currentYear = currentYearStatic - 1;
+//                currentMonth = currentMonthStatic + 12 - i;
+//            } else {
+//                currentYear = currentYearStatic;
+//                currentMonth = currentMonthStatic - i;
+//            }
+//            String Year = String.valueOf(currentYear);
+//            String Month = String.valueOf(currentMonth);
+//            String predictionMeanResult = ensoMapper.findEachPredictionsResultByMonthType(Year, Month, "nino34_mean");
+//            if (predictionMeanResult != null) {
+//                Map<String, Object> temp = new HashMap<>();
+//                Map<String, Object> tempObs = new HashMap<>();
+//                Map<String, Object> tempError = new HashMap<>();
+//
+//                title.put("text", title_text);
+//                title.put("left", title_left);
+//                tooltip.put("trigger", tooltip_trigger);
+//                tooltip.put("axisPointer", tooltip_axisPointer);
+//                tooltip_axisPointer.put("type", tooltip_axisPointer_type);
+//                tooltip_axisPointer.put("crossStyle", tooltip_axisPointer_crossStyle);
+//                tooltip_axisPointer_crossStyle.put("color", tooltip_axisPointer_crossStyle_color);
+//                legend.put("x", legend_x);
+//                legend.put("y", legend_y);
+//                legend.put("tooltip", legend_tooltip);
+//                legend_tooltip.put("show", legend_tooltip_show);
+//                toolbox.put("feature", toolbox_feature);
+//                toolbox_feature.put("saveAsImage", toolbox_feature_saveAsImage);
+//                xAxis.put("type", xAxis_type);
+//                xAxis.put("axisPointer", xAxis_axisPointer);
+//                xAxis_axisPointer.put("type", xAxis_axisPointer_type);
+//                xAxis_data.remove(0);//每次删去一个
+//                xAxis.put("data", xAxis_data);
+//                xAxis.put("axisLabel", xAxis_axisLabel);
+//                xAxis_axisLabel.put("interval", xAxis_interval);
+//                yAxis.put("type", yAxis_type);
+//                yAxis.put("name", yAxis_name);
+//
+//                //误差
+//
+//                String temp_name = Year + "年" + Month + "月起报预报误差";
+//                String temp_type = "line";
+//                String temp_lineStyle_type = "dashed";
+//                Map<String, Object> temp_lineStyle = new HashMap<>();
+//
+//                temp.put("name", temp_name);
+//                temp.put("type", temp_type);
+//                temp.put("lineStyle", temp_lineStyle);
+//                temp_lineStyle.put("lineStyle", temp_lineStyle_type);
+//                List<Object> predictionMeanData = new ArrayList<>();
+//
+//                List<Object> predictionMeanList = gson.fromJson(predictionMeanResult, listType);  // 将结果字符串转换为列表
+//                predictionMeanData = predictionMeanList.subList(0, i + 1);
+//                ;
+//                temp.put("data", predictionMeanData);
+//
+//                series.add(temp);
+//                //标准
+//                Map<String, Object> tempObs_lineStyle = new HashMap<>();
+//                List<Object> obs_data_fin = obs_data.subList(11 - i, obs_data.size());
+//                String tempObs_name = "气候中心Nino3.4指数记录";
+//                String tempObs_type = "line";
+//                String tempObs_lineStyle_type = "dashed";
+//                tempObs_lineStyle.put("type", tempObs_lineStyle_type);
+//                tempObs.put("name", tempObs_name);
+//                tempObs.put("type", tempObs_type);
+//                tempObs.put("lineStyle", tempObs_lineStyle);
+//                tempObs.put("data", obs_data_fin);
+//                series.add(tempObs);
+//                //差集
+//                List<Object> error = new ArrayList<>();
+//                for (int j = 0; j <= i; j++) {
+//                    //？？？
+//                    error.add(Math.abs((Double.parseDouble(predictionMeanData.get(j).toString()) - Double.parseDouble(obs_data_fin.get(j).toString()))));
+//                }
+//                String tempError_name = Year + "年" + Month + "月起报";
+//                tempError.put("name", tempError_name);
+//                tempError.put("type", tempObs_type);
+//                tempError.put("lineStyle", tempObs_lineStyle);
+//                tempError.put("data", error);
+//                series.add(tempError);
+//
+//            }
+//        }
+//        //最后的总和
+//        resultMap.put("title",title);
+//        resultMap.put("tooltip",tooltip);
+//        resultMap.put("legend",legend);
+//        resultMap.put("toolbox",toolbox);
+//        xAxis1.add(xAxis);
+//        yAxis1.add(yAxis);
+//        resultMap.put("xAxis",xAxis1);
+//        resultMap.put("yAxis",yAxis1);
+//        resultMap.put("series",series);
+//        option.add(resultMap);
+//        return option;
+//    }
 
     /**
      * 返回列表数据的中位数
