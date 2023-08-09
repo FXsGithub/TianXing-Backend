@@ -60,7 +60,8 @@ public class Tj_naoController {
         title.put("text",String.format("%s年%s月~%s年%s月 NAOI指数预测结果", year, month, end_year, end_month));
         title.put("left","center");
         naoMap.put("title",title);
-        naoMap.put("tooltip","{}");
+        Map<String, Object> tooltip=new LinkedHashMap<>();
+        naoMap.put("tooltip",tooltip);
         Map<String, Object> xAxis=new LinkedHashMap<>();
         xAxis.put("type","category");
         xAxis.put("name","时间");
@@ -239,7 +240,8 @@ public class Tj_naoController {
          title.put("text",String.format("%s年%s月~%s年%s月 NAOI指数预测结果", end_year, "7", end_year, "12"));
          title.put("left","center");
          naoMap.put("title",title);
-         naoMap.put("tooltip","{}");
+         Map<String, Object> tooltip=new LinkedHashMap<>();
+         naoMap.put("tooltip",tooltip);
          Map<String, Object> xAxis=new LinkedHashMap<>();
          xAxis.put("type","category");
          xAxis.put("name","时间");
