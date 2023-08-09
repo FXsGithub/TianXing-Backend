@@ -1,8 +1,14 @@
 package com.tongji.enso.mybatisdemo.controller;
 
+import com.tongji.enso.mybatisdemo.entity.online.Imgs;
+import com.tongji.enso.mybatisdemo.entity.online.Tj_enso;
 import com.tongji.enso.mybatisdemo.mapper.online.EnsoMapper;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+
+import java.time.Year;
+import java.time.YearMonth;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 import io.swagger.annotations.ApiOperation;
@@ -1498,4 +1504,109 @@ public class EnsoController {
         return result;
     }
 
+    /**
+     * 初始化：返回可选年、月范围 linechart
+     */
+    @GetMapping("/linechart/getInitData")
+    @ApiOperation(value = "初始化：返回可选年、月范围 linechart", notes = "初始化：返回可选年、月范围 linechart")
+    public Map<String, Object> getLinechartInitMonth()
+    {
+        List<Tj_enso> ensoData = ensoMapper.findTj_ensoInfoByType("nino34_mean");
+
+        String earliestDate = null;
+        String latestDate = null;
+
+        for (Tj_enso enso : ensoData) {
+            int year = Integer.parseInt(enso.getYear());
+            int month = Integer.parseInt(enso.getMonth());
+            if (earliestDate == null || year < Integer.parseInt(earliestDate.split("-")[0]) || (year == Integer.parseInt(earliestDate.split("-")[0]) && month < Integer.parseInt(earliestDate.split("-")[1]))) {
+                earliestDate = year + "-" + month;
+            }
+            if (latestDate == null || year > Integer.parseInt(latestDate.split("-")[0]) || (year == Integer.parseInt(latestDate.split("-")[0]) && month > Integer.parseInt(latestDate.split("-")[1]))) {
+                latestDate = year + "-" + month;
+            }
+        }
+
+        DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yyyy-M");  // YearMonth 无法直接解析形如 xxxx-x
+
+        YearMonth latestYearMonth = YearMonth.parse(latestDate, dateFormatter);
+        YearMonth earliestYearMonth = YearMonth.parse(earliestDate, dateFormatter);
+        earliestYearMonth = earliestYearMonth.plusMonths(11);  // 因为每次查询前11个月的数据
+
+        Map<String, Object> result = new HashMap<>();
+        result.put("earliestDate", earliestYearMonth);
+        result.put("latestDate", latestYearMonth);
+        return result;
+    }
+
+    /**
+     * 初始化：返回可选年、月范围 errorBox
+     */
+    @GetMapping("/errorBox/getInitData")
+    @ApiOperation(value = "初始化：返回可选年、月范围 errorBox", notes = "初始化：返回可选年、月范围 errorBox")
+    public Map<String, Object> getErrorBoxInitMonth()
+    {
+        List<Tj_enso> ensoData = ensoMapper.findTj_ensoInfoByType("nino34_mean");
+
+        String earliestDate = null;
+        String latestDate = null;
+
+        for (Tj_enso enso : ensoData) {
+            int year = Integer.parseInt(enso.getYear());
+            int month = Integer.parseInt(enso.getMonth());
+            if (earliestDate == null || year < Integer.parseInt(earliestDate.split("-")[0]) || (year == Integer.parseInt(earliestDate.split("-")[0]) && month < Integer.parseInt(earliestDate.split("-")[1]))) {
+                earliestDate = year + "-" + month;
+            }
+            if (latestDate == null || year > Integer.parseInt(latestDate.split("-")[0]) || (year == Integer.parseInt(latestDate.split("-")[0]) && month > Integer.parseInt(latestDate.split("-")[1]))) {
+                latestDate = year + "-" + month;
+            }
+        }
+
+        DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yyyy-M");  // YearMonth 无法直接解析形如 xxxx-x
+
+        YearMonth latestYearMonth = YearMonth.parse(latestDate, dateFormatter);
+        YearMonth earliestYearMonth = YearMonth.parse(earliestDate, dateFormatter);
+        earliestYearMonth = earliestYearMonth.plusMonths(11);  // 因为每次查询前11个月的数据
+        latestYearMonth = latestYearMonth.minusMonths(2);  // 因为要计算四分位，至少要4个数据
+
+        Map<String, Object> result = new HashMap<>();
+        result.put("earliestDate", earliestYearMonth);
+        result.put("latestDate", latestYearMonth);
+        return result;
+    }
+
+    /**
+     * 初始化：返回可选年、月范围 errorCorr
+     */
+    @GetMapping("/errorCorr/getInitData")
+    @ApiOperation(value = "返回的是可查询年月", notes = "初始化：返回可选年、月范围 errorCorr")
+    public Map<String, Object> getErrorCorrInitMonth()
+    {
+        List<Tj_enso> ensoData = ensoMapper.findTj_ensoInfoByType("nino34_mean");
+
+        String earliestDate = null;
+        String latestDate = null;
+
+        for (Tj_enso enso : ensoData) {
+            int year = Integer.parseInt(enso.getYear());
+            int month = Integer.parseInt(enso.getMonth());
+            if (earliestDate == null || year < Integer.parseInt(earliestDate.split("-")[0]) || (year == Integer.parseInt(earliestDate.split("-")[0]) && month < Integer.parseInt(earliestDate.split("-")[1]))) {
+                earliestDate = year + "-" + month;
+            }
+            if (latestDate == null || year > Integer.parseInt(latestDate.split("-")[0]) || (year == Integer.parseInt(latestDate.split("-")[0]) && month > Integer.parseInt(latestDate.split("-")[1]))) {
+                latestDate = year + "-" + month;
+            }
+        }
+
+        DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yyyy-M");  // YearMonth 无法直接解析形如 xxxx-x
+
+        YearMonth latestYearMonth = YearMonth.parse(latestDate, dateFormatter);
+        YearMonth earliestYearMonth = YearMonth.parse(earliestDate, dateFormatter);
+        earliestYearMonth = earliestYearMonth.plusMonths(11);  // 因为每次查询前11个月的数据
+
+        Map<String, Object> result = new HashMap<>();
+        result.put("earliestDate", earliestYearMonth);
+        result.put("latestDate", latestYearMonth);
+        return result;
+    }
 }
