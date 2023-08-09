@@ -1609,4 +1609,39 @@ public class EnsoController {
         result.put("latestDate", latestYearMonth);
         return result;
     }
+
+    /**
+     * 初始化：返回可选年、月范围 monthlyComparison
+     */
+    @GetMapping("/monthlyComparison/getInitData")
+    @ApiOperation(value = "初始化：返回可选年、月范围 monthlyComparison", notes = "返回的是可查询年月")
+    public Map<String, Object> getmonthlyComparisonInitMonth()
+    {
+        List<Tj_enso> ensoData = ensoMapper.findTj_ensoInfoByType("nino34_mean");
+
+        String earliestDate = null;
+        String latestDate = null;
+
+        for (Tj_enso enso : ensoData) {
+            int year = Integer.parseInt(enso.getYear());
+            int month = Integer.parseInt(enso.getMonth());
+            if (earliestDate == null || year < Integer.parseInt(earliestDate.split("-")[0]) || (year == Integer.parseInt(earliestDate.split("-")[0]) && month < Integer.parseInt(earliestDate.split("-")[1]))) {
+                earliestDate = year + "-" + month;
+            }
+            if (latestDate == null || year > Integer.parseInt(latestDate.split("-")[0]) || (year == Integer.parseInt(latestDate.split("-")[0]) && month > Integer.parseInt(latestDate.split("-")[1]))) {
+                latestDate = year + "-" + month;
+            }
+        }
+
+        DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yyyy-M");  // YearMonth 无法直接解析形如 xxxx-x
+
+        YearMonth latestYearMonth = YearMonth.parse(latestDate, dateFormatter);
+        YearMonth earliestYearMonth = YearMonth.parse(earliestDate, dateFormatter);
+        earliestYearMonth = earliestYearMonth.plusMonths(11);  // 因为每次查询前11个月的数据
+
+        Map<String, Object> result = new HashMap<>();
+        result.put("start", earliestYearMonth);
+        result.put("end", latestYearMonth);
+        return result;
+    }
 }

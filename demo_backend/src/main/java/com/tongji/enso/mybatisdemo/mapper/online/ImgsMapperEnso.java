@@ -16,5 +16,6 @@ public interface ImgsMapperEnso {
      */
     @Select("SELECT * FROM imgs WHERE year = #{year} AND month = #{month} AND type = 'ENSO'")
     List<Imgs> findImgsInfoByDayType(@RequestParam("year") String year, @RequestParam("month") String month, @RequestParam("type") String type);
-
+    @Select("SELECT * FROM imgs WHERE type = #{type}")
+    List<Imgs> findImgsInfoALL(@RequestParam("type") String type);
 }
