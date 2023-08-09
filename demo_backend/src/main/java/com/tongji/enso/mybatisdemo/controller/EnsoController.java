@@ -1508,7 +1508,7 @@ public class EnsoController {
      * 初始化：返回可选年、月范围 linechart
      */
     @GetMapping("/linechart/getInitData")
-    @ApiOperation(value = "初始化：返回可选年、月范围 linechart", notes = "初始化：返回可选年、月范围 linechart")
+    @ApiOperation(value = "初始化：返回可选年、月范围 linechart", notes = "返回的是可查询年月")
     public Map<String, Object> getLinechartInitMonth()
     {
         List<Tj_enso> ensoData = ensoMapper.findTj_ensoInfoByType("nino34_mean");
@@ -1543,7 +1543,7 @@ public class EnsoController {
      * 初始化：返回可选年、月范围 errorBox
      */
     @GetMapping("/errorBox/getInitData")
-    @ApiOperation(value = "初始化：返回可选年、月范围 errorBox", notes = "初始化：返回可选年、月范围 errorBox")
+    @ApiOperation(value = "初始化：返回可选年、月范围 errorBox", notes = "返回的是可查询年月")
     public Map<String, Object> getErrorBoxInitMonth()
     {
         List<Tj_enso> ensoData = ensoMapper.findTj_ensoInfoByType("nino34_mean");
@@ -1579,7 +1579,7 @@ public class EnsoController {
      * 初始化：返回可选年、月范围 errorCorr
      */
     @GetMapping("/errorCorr/getInitData")
-    @ApiOperation(value = "返回的是可查询年月", notes = "初始化：返回可选年、月范围 errorCorr")
+    @ApiOperation(value = "初始化：返回可选年、月范围 errorCorr", notes = "返回的是可查询年月")
     public Map<String, Object> getErrorCorrInitMonth()
     {
         List<Tj_enso> ensoData = ensoMapper.findTj_ensoInfoByType("nino34_mean");
