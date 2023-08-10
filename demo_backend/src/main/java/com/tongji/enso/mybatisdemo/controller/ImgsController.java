@@ -375,7 +375,7 @@ public class ImgsController {
         String latestDate = null;
 
         for (Imgs img : imgsData) {
-            String date = img.getYear() + "-" + img.getMonth() + "-" + img.getDay();
+            String date = img.getYear() + "-" + img.getMonth();
             if (earliestDate == null || date.compareTo(earliestDate) < 0) {
                 earliestDate = date;
             }
@@ -396,9 +396,20 @@ public class ImgsController {
     @GetMapping("/predictionResult/ssta")
     public Map<String,  Object> getSstaData(String year, String month, String day) {
         List<Imgs> imgsData = ImgsMapperEnso.findImgsInfoByDayType(year, month,"WEA_U10");
-
         Map<String, Object> result = new HashMap<>();
-        result.put("data", imgsData);
+        // 将 data 字段从 JSON 字符串转换为 List<String>
+        List<String> imgPaths = new ArrayList<>();
+        if (!imgsData.isEmpty()) {
+            String imgSrcData = imgsData.get(0).getData();
+            imgPaths = Arrays.asList(imgSrcData.split(","));
+        }
+        String title =year+"年"+month+"月 Nino3.4区SST集合平均预测结果";
+        List<String> titles=new ArrayList<>();
+        for(int i=0;i< imgPaths.size();i++){
+            titles.add(title);
+        }
+        result.put("data", imgPaths);
+        result.put("titles", titles);
         return result;
     }
 
