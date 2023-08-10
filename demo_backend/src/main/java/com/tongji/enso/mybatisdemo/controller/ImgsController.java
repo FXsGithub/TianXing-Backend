@@ -361,7 +361,34 @@ public class ImgsController {
 
     @Autowired
     private ImgsMapperEnso ImgsMapperEnso;
+    /**
+     * 初始化：返回可选年、月、日范围 WEA_U10
+     * eg. http://localhost:8080/imgs/predictionResult/ssta/getInitData
+     */
+    @GetMapping("/predictionResult/ssta/getInitData")
+    @ApiOperation(notes = "初始化：返回可选年、月、日范围 Enso_ssta", value = "初始化：返回可选年、月、日范围 Enso")
+    public Map<String, Object> getSSTAInitMonth()
+    {
+        List<Imgs> imgsData = ImgsMapperEnso.findImgsInfoALL("ENSO");
 
+        String earliestDate = null;
+        String latestDate = null;
+
+        for (Imgs img : imgsData) {
+            String date = img.getYear() + "-" + img.getMonth() + "-" + img.getDay();
+            if (earliestDate == null || date.compareTo(earliestDate) < 0) {
+                earliestDate = date;
+            }
+            if (latestDate == null || date.compareTo(latestDate) > 0) {
+                latestDate = date;
+            }
+        }
+
+        Map<String, Object> result = new HashMap<>();
+        result.put("start", earliestDate);
+        result.put("end", latestDate);
+        return result;
+    }
     /**
      * 获取指定 年、月、index的图片路径
      * eg. http://localhost:9090/imgs/WEA_U10/getImgsPath?year=2019&month=1&day=1
