@@ -214,14 +214,14 @@ public class Tj_sieController {
     @GetMapping("/initial/SIEErrorAnalysis")
     @ApiOperation(notes = "SIE预测误差分析可查询日期和最新结果", value = "查询SIE误差分析图的可查询日期和最新结果")
     public HashMap<String,Object> initialSIEerrorAnalysis(){
-        List<String> yearList=Arrays.asList("2020-2022");
+        List<String> yearList=Arrays.asList("2022");
         List<String> monthList=Arrays.asList("1");
         // 要返回的HashMap
         HashMap<String, Object> return_hashmap = new HashMap<String, Object>();
         return_hashmap.put("yearList",yearList);
         return_hashmap.put("monthList",monthList);
 
-        Map<String,Object> SIEerrorList =findErrorAnalysis("2020-2022");
+        Map<String,Object> SIEerrorList =findErrorAnalysis("2022");
         return_hashmap.put("SIEerrorInitial",SIEerrorList);
 
         return return_hashmap;
